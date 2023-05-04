@@ -15,7 +15,7 @@ import ListItemButton from '@mui/material/ListItemButton'
 import themeConfig from '../../../../../configs/themeConfig'
 
 // ** Custom Components Imports
-import UserIcon from 'src/layouts/components/UserIcon'
+import UserIcon from '../../../../../layouts/components/UserIcon'
 
 // ** Utils
 import { handleURLQueries } from '../../../../../@core/layouts/utils'
