@@ -14,7 +14,7 @@ const navigation = () => {
     {
       title: 'Dashboard',
       icon: HomeOutline,
-      path: '/'
+      path: '/dashboard'
     },
     {
       title: 'Configurações',

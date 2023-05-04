@@ -1,0 +1,9 @@
+.imagem_logo {
+    height: 50%;
+    width: 50%;
+    transition: 0.5s; 
+}
+
+.imagem_logo:hover {
+    transform: scale(1.1); 
+}
