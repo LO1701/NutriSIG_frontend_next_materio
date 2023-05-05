@@ -38,9 +38,14 @@ import FooterIllustrationsV1 from '../views/pages/auth/FooterIllustration'
 // ** Imports image logo
 import imagemLogo from '../img/logo.png'
 import Image from 'next/image'
-import styles from '../styles/Index.module.css'
 
 import { authService } from '../services/auth/authService'
+
+// Import formik e yup
+import { useFormik } from 'formik'
+import * as Yup from 'yup';
+import { FormHelperText } from '@mui/material'
+
 
 // ** Styled Components
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -91,6 +96,40 @@ const LoginPage = () => {
     event.preventDefault()
   }
 
+  const formik = useFormik({
+    initialValues: {
+      email: 'lurian502@gmail.com',
+      senha: '1234568',
+      submit: null
+    },
+    validationSchema: Yup.object({
+      email: Yup
+        .string()
+        .email('Email inválido')
+        .max(255)
+        .required('Email é obrigatório'),
+      senha: Yup
+        .string()
+        .max(255)
+        .required('Senha é obrigatória')
+    }),
+    onSubmit: async (values, helpers) => {
+      try {
+        await authService.login({
+          email: values.email,
+          senha: values.senha
+        })
+        
+
+        router.push('/dashboard');
+      } catch (err) {
+        helpers.setStatus({ success: false });
+        helpers.setErrors({ submit: err.message });
+        helpers.setSubmitting(false);
+      }
+    }
+  });
+
   return (
     <Box className='content-center'>
       <Card sx={{ zIndex: 1 }}>
@@ -107,38 +146,32 @@ const LoginPage = () => {
             />
             <Typography variant='body2'>Por favor, entre com sua conta para ter acesso</Typography>
           </Box>
-          <form noValidate autoComplete='off' onSubmit={(event) => {
-            event.preventDefault()
-
-            authService.login({
-              email: values.usuario,
-              senha: values.password
-            })
-            .then(() => {
-              
-              router.push('/dashboard') 
-            }).catch(() => {
-              alert('Usuário ou a senha estão inválidos')
-            })
-
-          }}>
+          <form noValidate autoComplete='off' onSubmit={formik.handleSubmit}>
             <TextField
+              error={!!(formik.touched.email && formik.errors.email)}
               autoFocus 
-              fullWidth 
+              fullWidth
+              helperText={formik.touched.email && formik.errors.email}
               id='email' 
               label='Email'
-              name='usuario' 
-              value={values.usuario}
-              onChange={handleChange}
+              name='email'
+              type="email" 
+              value={formik.values.email}
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
               sx={{ marginBottom: 4 }} />
             <FormControl fullWidth>
-              <InputLabel htmlFor='auth-login-password'>Senha</InputLabel>
+              {(formik.touched.senha && formik.errors.senha)? (
+                <InputLabel htmlFor='senha' sx={{color: '#FF4C51'}}>Senha</InputLabel>
+              ):(<InputLabel htmlFor='senha'>Senha</InputLabel>)}
               <OutlinedInput
-                label='Password'
-                value={values.password}
-                id='auth-login-password'
-                name='password'
-                onChange={handleChange}
+                error={!!(formik.touched.senha && formik.errors.senha)}
+                label='senha'
+                value={formik.values.senha}
+                id='senha'
+                name='senha'
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
                 type={values.showPassword ? 'text' : 'password'}
                 endAdornment={
                   <InputAdornment position='end'>
@@ -153,6 +186,9 @@ const LoginPage = () => {
                   </InputAdornment>
                 }
               />
+              {(formik.touched.senha && formik.errors.senha) && (
+                <FormHelperText id="component-error-text" sx={{color: '#FF4C51'}}>Senha é obrigatória</FormHelperText>
+              )}
             </FormControl>
             <Box
               sx={{ mb: 4, display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}
@@ -162,6 +198,15 @@ const LoginPage = () => {
                 <LinkStyled onClick={e => e.preventDefault()}>Forgot Password?</LinkStyled>
               </Link> */}
             </Box>
+            {formik.errors.submit && (
+                  <Typography
+                    color="error"
+                    sx={{ m: 3 }}
+                    variant="body2"
+                  >
+                    {formik.errors.submit}
+                  </Typography>
+                )}
             <Button
               fullWidth
               size='large'

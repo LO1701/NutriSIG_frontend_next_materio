@@ -23,11 +23,11 @@ const BoxWrapper = styled(Box)(({ theme }) => ({
 const Img = styled('img')(({ theme }) => ({
   marginBottom: theme.spacing(10),
   [theme.breakpoints.down('lg')]: {
-    height: 450,
+    height: 400,
     marginTop: theme.spacing(10)
   },
   [theme.breakpoints.down('md')]: {
-    height: 400
+    height: 350
   },
   [theme.breakpoints.up('lg')]: {
     marginTop: theme.spacing(13)
@@ -50,14 +50,14 @@ const Error500 = () => {
         <BoxWrapper>
           <Typography variant='h1'>500</Typography>
           <Typography variant='h5' sx={{ mb: 1, fontSize: '1.5rem !important' }}>
-            Internal server error 👨🏻‍💻
+            Erro interno do servidor 👨🏻‍💻
           </Typography>
-          <Typography variant='body2'>Oops, something went wrong!</Typography>
+          <Typography variant='body2'>Ops, algo deu errado!</Typography>
         </BoxWrapper>
-        <Img height='487' alt='error-illustration' src='/images/pages/500.png' />
+        <Img height='487' alt='error-illustration' src='/images/pages/error-500.png' />
         <Link passHref href='/'>
           <Button component='a' variant='contained' sx={{ px: 5.5 }}>
-            Back to Home
+            Voltar para Home
           </Button>
         </Link>
       </Box>

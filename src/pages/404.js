@@ -23,11 +23,11 @@ const BoxWrapper = styled(Box)(({ theme }) => ({
 const Img = styled('img')(({ theme }) => ({
   marginBottom: theme.spacing(10),
   [theme.breakpoints.down('lg')]: {
-    height: 450,
+    height: 400,
     marginTop: theme.spacing(10)
   },
   [theme.breakpoints.down('md')]: {
-    height: 400
+    height: 350
   },
   [theme.breakpoints.up('lg')]: {
     marginTop: theme.spacing(13)
@@ -54,7 +54,7 @@ const Error404 = () => {
           </Typography>
           <Typography variant='body2'>Não foi possível encontrar a página que você está procurando.</Typography>
         </BoxWrapper>
-        <Img height='487' alt='error-illustration' src='/images/pages/404.png' />
+        <Img height='487' alt='error-illustration' src='/images/pages/error-404.png' />
         <Link passHref href='/'>
           <Button component='a' variant='contained' sx={{ px: 5.5 }}>
             Voltar para Home

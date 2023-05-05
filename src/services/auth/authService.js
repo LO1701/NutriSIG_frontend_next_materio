@@ -2,7 +2,7 @@
 
 export const authService = {
     async login ({email, senha}) {
-        fetch('http://localhost:5000/login', {
+        return fetch('http://localhost:5000/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -13,10 +13,11 @@ export const authService = {
             })
         })
         .then(async (respostaDoServidor) => {
+            console.log('>>>'+respostaDoServidor.ok)
             if(!respostaDoServidor.ok)
                 throw new Error('Usuário ou senha inválidos')
             
-            const body = await respostaDoServidor.json()
+            const body = await respostaDoServidor
 
             console.log(body)
         })

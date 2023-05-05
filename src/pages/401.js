@@ -23,11 +23,11 @@ const BoxWrapper = styled(Box)(({ theme }) => ({
 const Img = styled('img')(({ theme }) => ({
   marginBottom: theme.spacing(10),
   [theme.breakpoints.down('lg')]: {
-    height: 450,
+    height: 400,
     marginTop: theme.spacing(10)
   },
   [theme.breakpoints.down('md')]: {
-    height: 400
+    height: 350
   },
   [theme.breakpoints.up('lg')]: {
     marginTop: theme.spacing(13)
@@ -41,14 +41,14 @@ const Error401 = () => {
         <BoxWrapper>
           <Typography variant='h1'>401</Typography>
           <Typography variant='h5' sx={{ mb: 1, fontSize: '1.5rem !important' }}>
-            You are not authorized! 🔐
+            Você não está autorizado! 🔐
           </Typography>
-          <Typography variant='body2'>You don&prime;t have permission to access this page. Go Home!</Typography>
+          <Typography variant='body2'>Você não tem permissão para acessar esta página.</Typography>
         </BoxWrapper>
-        <Img height='487' alt='error-illustration' src='/images/pages/401.png' />
+        <Img height='487' alt='error-illustration' src='/images/pages/error-401.png' />
         <Link passHref href='/'>
           <Button component='a' variant='contained' sx={{ px: 5.5 }}>
-            Back to Home
+            Voltar para Home
           </Button>
         </Link>
       </Box>
