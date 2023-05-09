@@ -25,6 +25,7 @@ import SalesByCountries from '../../views/dashboard/SalesByCountries'
 const Dashboard = () => {
   return (
     <ApexChartWrapper>
+      <h1>Dash</h1>
       <Grid container spacing={6}>
         <Grid item xs={12} md={4}>
           <Trophy />

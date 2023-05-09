@@ -122,7 +122,7 @@ const DashboardTable = () => {
                 <TableCell>{row.salary}</TableCell>
                 <TableCell>{row.age}</TableCell>
                 <TableCell>
-                  <Chip
+                   <Chip 
                     label={row.status}
                     color={statusObj[row.status].color}
                     sx={{

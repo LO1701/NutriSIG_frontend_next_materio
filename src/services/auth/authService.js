@@ -1,8 +1,8 @@
-
+import { HttpClient } from "../../infra/HttpClient/HttpClient"
 
 export const authService = {
     async login ({email, senha}) {
-        return fetch('http://localhost:5000/login', {
+        return HttpClient(`${process.env.NEXT_PUBLIC_URL}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
