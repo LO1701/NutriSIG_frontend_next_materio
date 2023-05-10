@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
@@ -39,13 +39,20 @@ import FooterIllustrationsV1 from '../views/pages/auth/FooterIllustration'
 import imagemLogo from '../img/logo.png'
 import Image from 'next/image'
 
-import { authService } from '../services/auth/authService'
-
 // Import formik e yup
 import { useFormik } from 'formik'
 import * as Yup from 'yup';
 import { FormHelperText } from '@mui/material'
 
+// import { useAuth } from '../@core/hooks/useAuth'
+// const auth = useAuth()
+
+import { AuthContext } from '../@core/context/AuthContext'
+// const useAuth = () => useContext(AuthContext);
+
+// const auth = useAuth()
+
+const { signIn } = useContext(AuthContext)
 
 // ** Styled Components
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -115,12 +122,8 @@ const LoginPage = () => {
     }),
     onSubmit: async (values, helpers) => {
       try {
-        await authService.login({
-          email: values.email,
-          senha: values.senha
-        })
-        
-
+        // await auth.signIn(values.email, values.senha)
+    
         router.push('/dashboard');
       } catch (err) {
         helpers.setStatus({ success: false });

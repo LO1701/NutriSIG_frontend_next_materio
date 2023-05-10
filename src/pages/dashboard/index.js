@@ -22,11 +22,19 @@ import WeeklyOverview from '../../views/dashboard/WeeklyOverview'
 import DepositWithdraw from '../../views/dashboard/DepositWithdraw'
 import SalesByCountries from '../../views/dashboard/SalesByCountries'
 
-const Dashboard = () => {
+// Nookies
+import nookies from 'nookies'
+import { tokenService } from '../../services/auth/tokenService'
+import { authService } from '../../services/auth/authService'
+
+const Dashboard = (props) => {
   return (
     <ApexChartWrapper>
       <h1>Dash</h1>
-      <Grid container spacing={6}>
+      <pre>
+        {/* {JSON.stringify(props, null, 2)} */}
+      </pre> 
+      {/* <Grid container spacing={6}>
         <Grid item xs={12} md={4}>
           <Trophy />
         </Grid>
@@ -94,9 +102,19 @@ const Dashboard = () => {
         <Grid item xs={12}>
           <Table />
         </Grid>
-      </Grid>
+      </Grid> */}
     </ApexChartWrapper>
   )
 }
 
 export default Dashboard
+
+// export async function getServerSideProps(ctx) {
+//   const session = await authService.getSession(ctx)
+  
+//   return { 
+//     props: { 
+//       session
+//     }
+//   }
+// }

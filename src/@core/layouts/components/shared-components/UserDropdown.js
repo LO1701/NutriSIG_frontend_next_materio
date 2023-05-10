@@ -22,6 +22,7 @@ import LogoutVariant from 'mdi-material-ui/LogoutVariant'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
 import MessageOutline from 'mdi-material-ui/MessageOutline'
 import AccountCogOutline from 'mdi-material-ui/AccountCogOutline'
+import { authService } from '../../../../services/auth/authService'
 
 // ** Styled Components
 const BadgeContentSpan = styled('span')(({ theme }) => ({
@@ -32,7 +33,8 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
   boxShadow: `0 0 0 2px ${theme.palette.background.paper}`
 }))
 
-const UserDropdown = () => {
+const UserDropdown = (props) => {
+
   // ** States
   const [anchorEl, setAnchorEl] = useState(null)
 
@@ -98,7 +100,7 @@ const UserDropdown = () => {
               <Avatar alt='John Doe' src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
             </Badge>
             <Box sx={{ display: 'flex', marginLeft: 3, alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Typography sx={{ fontWeight: 600 }}>John Doe</Typography>
+              <Typography sx={{ fontWeight: 600 }}>teste</Typography>
               <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
                 Admin
               </Typography>
@@ -124,3 +126,13 @@ const UserDropdown = () => {
 }
 
 export default UserDropdown
+
+// export async function getServerSideProps(ctx) {
+//   const session = await authService.getSession(ctx)
+//   const nome = session.body.nome
+//   return { 
+//     props: { 
+//       nome
+//     }
+//   }
+// }

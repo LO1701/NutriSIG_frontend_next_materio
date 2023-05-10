@@ -26,6 +26,7 @@ import 'react-perfect-scrollbar/dist/css/styles.css'
 
 // ** Global css styles
 import '../../styles/globals.css'
+import { AuthConsumer, AuthProvider } from '../@core/context/AuthContext'
 
 const clientSideEmotionCache = createEmotionCache()
 
@@ -64,10 +65,18 @@ const App = props => {
       <SettingsProvider>
         <SettingsConsumer>
           {({ settings }) => {
-            return <ThemeComponent settings={settings}>{getLayout(<Component {...pageProps} />)}</ThemeComponent>
+            return (
+            <ThemeComponent settings={settings}>
+              {getLayout(
+                <AuthProvider>
+                  <Component {...pageProps} />
+                </AuthProvider>
+              )}
+            </ThemeComponent>)
           }}
         </SettingsConsumer>
       </SettingsProvider>
+      
     </CacheProvider>
   )
 }
