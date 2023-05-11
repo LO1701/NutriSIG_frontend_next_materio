@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, Fragment } from 'react'
+import { useState, Fragment, useContext } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -22,6 +22,7 @@ import LogoutVariant from 'mdi-material-ui/LogoutVariant'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
 import MessageOutline from 'mdi-material-ui/MessageOutline'
 import AccountCogOutline from 'mdi-material-ui/AccountCogOutline'
+import { useAuth } from '../../../hooks/useAuth'
 import { authService } from '../../../../services/auth/authService'
 
 // ** Styled Components
@@ -34,6 +35,8 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
 }))
 
 const UserDropdown = (props) => {
+
+  // console.log(props)
 
   // ** States
   const [anchorEl, setAnchorEl] = useState(null)
@@ -127,12 +130,12 @@ const UserDropdown = (props) => {
 
 export default UserDropdown
 
-// export async function getServerSideProps(ctx) {
-//   const session = await authService.getSession(ctx)
-//   const nome = session.body.nome
-//   return { 
-//     props: { 
-//       nome
-//     }
-//   }
-// }
+export async function getServerSideProps(ctx) {
+  const session = await authService.getSession(ctx)
+// console.log(session)
+  return { 
+    props: { 
+      session
+    }
+  }
+}

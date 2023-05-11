@@ -45,7 +45,10 @@ const ResetButtonStyled = styled(Button)(({ theme }) => ({
   }
 }))
 
-const TabAccount = () => {
+const TabAccount = ({user}) => {
+
+  console.log(user)
+  
   // ** State
   const [openAlert, setOpenAlert] = useState(true)
   const [imgSrc, setImgSrc] = useState('/images/avatars/1.png')
@@ -99,7 +102,7 @@ const TabAccount = () => {
               type='email'
               label='Email'
               placeholder='johnDoe@example.com'
-              defaultValue='johnDoe@example.com'
+              defaultValue=''
             />
           </Grid>
           <Grid item xs={12} sm={6}>

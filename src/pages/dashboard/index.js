@@ -22,12 +22,11 @@ import WeeklyOverview from '../../views/dashboard/WeeklyOverview'
 import DepositWithdraw from '../../views/dashboard/DepositWithdraw'
 import SalesByCountries from '../../views/dashboard/SalesByCountries'
 
-// Nookies
-import nookies from 'nookies'
 import { tokenService } from '../../services/auth/tokenService'
-import { authService } from '../../services/auth/authService'
+import { useAuth } from '../../@core/hooks/useAuth'
 
 const Dashboard = (props) => {
+
   return (
     <ApexChartWrapper>
       <h1>Dash</h1>
@@ -109,12 +108,19 @@ const Dashboard = (props) => {
 
 export default Dashboard
 
-// export async function getServerSideProps(ctx) {
-//   const session = await authService.getSession(ctx)
-  
-//   return { 
-//     props: { 
-//       session
-//     }
-//   }
-// }
+export const getServerSideProps = async (ctx) => {
+  const token = tokenService.get(ctx);
+
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      }
+    }
+  }
+
+  return {
+    props: {}
+  }
+}

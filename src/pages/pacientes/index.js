@@ -6,6 +6,7 @@ import ApexChartWrapper from '../../@core/styles/libs/react-apexcharts'
 
 // ** Demo Components Imports
 import Table from '../../views/dashboard/Table'
+import { tokenService } from '../../services/auth/tokenService'
 
 const Pacientes = () => {
   return (
@@ -20,3 +21,20 @@ const Pacientes = () => {
 }
 
 export default Pacientes
+
+export const getServerSideProps = async (ctx) => {
+  const token = tokenService.get(ctx);
+
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      }
+    }
+  }
+
+  return {
+    props: {}
+  }
+}

@@ -22,6 +22,8 @@ import TabSecurity from '../../views/account-settings/TabSecurity'
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
+import { tokenService } from '../../services/auth/tokenService'
+import { useAuth } from '../../@core/hooks/useAuth'
 
 const Tab = styled(MuiTab)(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -42,6 +44,9 @@ const TabName = styled('span')(({ theme }) => ({
 }))
 
 const AccountSettings = () => {
+
+  const auth = useAuth()
+
   // ** State
   const [value, setValue] = useState('account')
 
@@ -87,7 +92,7 @@ const AccountSettings = () => {
         </TabList>
 
         <TabPanel sx={{ p: 0 }} value='account'>
-          <TabAccount />
+          <TabAccount user={auth.user.email}/>
         </TabPanel>
         <TabPanel sx={{ p: 0 }} value='security'>
           <TabSecurity />
@@ -101,3 +106,20 @@ const AccountSettings = () => {
 }
 
 export default AccountSettings
+
+export const getServerSideProps = async (ctx) => {
+  const token = tokenService.get(ctx);
+
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      }
+    }
+  }
+
+  return {
+    props: {}
+  }
+}

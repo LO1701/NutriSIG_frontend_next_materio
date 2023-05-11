@@ -43,16 +43,7 @@ import Image from 'next/image'
 import { useFormik } from 'formik'
 import * as Yup from 'yup';
 import { FormHelperText } from '@mui/material'
-
-// import { useAuth } from '../@core/hooks/useAuth'
-// const auth = useAuth()
-
-import { AuthContext } from '../@core/context/AuthContext'
-// const useAuth = () => useContext(AuthContext);
-
-// const auth = useAuth()
-
-const { signIn } = useContext(AuthContext)
+import { useAuth } from '../@core/hooks/useAuth'
 
 // ** Styled Components
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -73,6 +64,9 @@ const FormControlLabel = styled(MuiFormControlLabel)(({ theme }) => ({
 }))
 
 const LoginPage = () => {
+
+  const auth = useAuth()
+
   // ** State
   const [values, setValues] = useState({
     password: '',
@@ -122,7 +116,7 @@ const LoginPage = () => {
     }),
     onSubmit: async (values, helpers) => {
       try {
-        // await auth.signIn(values.email, values.senha)
+        await auth.signIn(values.email, values.senha)
     
         router.push('/dashboard');
       } catch (err) {
