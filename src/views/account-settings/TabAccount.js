@@ -47,7 +47,7 @@ const ResetButtonStyled = styled(Button)(({ theme }) => ({
 
 const TabAccount = ({user}) => {
 
-  console.log(user)
+  // console.log(user)
   
   // ** State
   const [openAlert, setOpenAlert] = useState(true)

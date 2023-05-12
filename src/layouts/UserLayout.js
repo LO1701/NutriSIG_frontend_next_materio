@@ -14,11 +14,15 @@ import VerticalAppBarContent from './components/vertical/AppBarContent'
 
 // ** Hook Import
 import { useSettings } from '../@core/hooks/useSettings'
-import { authService } from '../services/auth/authService'
+import { useAuth } from '../@core/hooks/useAuth'
 
 const UserLayout = ({ children }) => {
   // ** Hooks
   const { settings, saveSettings } = useSettings()
+
+  const { user } = useAuth()
+
+  // console.log(user)
 
   /**
    *  The below variable will hide the current layout menu at given screen size.

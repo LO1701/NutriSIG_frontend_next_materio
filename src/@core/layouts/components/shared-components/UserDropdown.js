@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, Fragment, useContext } from 'react'
+import { useState, Fragment, useEffect } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -24,6 +24,7 @@ import MessageOutline from 'mdi-material-ui/MessageOutline'
 import AccountCogOutline from 'mdi-material-ui/AccountCogOutline'
 import { useAuth } from '../../../hooks/useAuth'
 import { authService } from '../../../../services/auth/authService'
+import { tokenService } from '../../../../services/auth/tokenService'
 
 // ** Styled Components
 const BadgeContentSpan = styled('span')(({ theme }) => ({
@@ -36,8 +37,6 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
 
 const UserDropdown = (props) => {
 
-  // console.log(props)
-
   // ** States
   const [anchorEl, setAnchorEl] = useState(null)
 
@@ -46,6 +45,12 @@ const UserDropdown = (props) => {
 
   const handleDropdownOpen = event => {
     setAnchorEl(event.currentTarget)
+  }
+
+  const logOut = () => {
+    tokenService.delete()
+
+    //router.push('/')
   }
 
   const handleDropdownClose = url => {
@@ -68,6 +73,16 @@ const UserDropdown = (props) => {
       color: 'text.secondary'
     }
   }
+
+  const [user, setUser] = useState()
+  
+  useEffect(async (ctx) => {
+    const usuarioAutenticado = await authService.getSession(ctx)
+
+    setUser(usuarioAutenticado)
+  }, [])
+  
+  // console.log(user)
 
   return (
     <Fragment>
@@ -103,23 +118,23 @@ const UserDropdown = (props) => {
               <Avatar alt='John Doe' src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
             </Badge>
             <Box sx={{ display: 'flex', marginLeft: 3, alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Typography sx={{ fontWeight: 600 }}>teste</Typography>
+              <Typography sx={{ fontWeight: 600 }}>{user?.body?.nome}</Typography>
               <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
-                Admin
+                {user?.body?.role}
               </Typography>
             </Box>
           </Box>
         </Box>
         <Divider sx={{ mt: 0, mb: 1 }} />
         <Divider />
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose('account-settings')}>
           <Box sx={styles}>
             <AccountCogOutline sx={{ marginRight: 2 }} />
             Configurações
           </Box>
         </MenuItem>
         <Divider />
-        <MenuItem sx={{ py: 2 }} onClick={() => handleDropdownClose('/')}>
+        <MenuItem sx={{ py: 2 }} onClick={() => logOut()}>
           <LogoutVariant sx={{ marginRight: 2, fontSize: '1.375rem', color: 'text.secondary' }} />
           Sair
         </MenuItem>
@@ -129,13 +144,3 @@ const UserDropdown = (props) => {
 }
 
 export default UserDropdown
-
-export async function getServerSideProps(ctx) {
-  const session = await authService.getSession(ctx)
-// console.log(session)
-  return { 
-    props: { 
-      session
-    }
-  }
-}
