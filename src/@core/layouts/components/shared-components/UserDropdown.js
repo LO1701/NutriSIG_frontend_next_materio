@@ -50,7 +50,7 @@ const UserDropdown = (props) => {
   const logOut = () => {
     tokenService.delete()
 
-    //router.push('/')
+    router.push('/')
   }
 
   const handleDropdownClose = url => {
