@@ -31,7 +31,7 @@ const DashboardTable = ({ pacientes }) => {
               <TableCell>UBS</TableCell>
               <TableCell>Sexo</TableCell>
               <TableCell>cpf</TableCell>
-              <TableCell>Status</TableCell>
+              {/* <TableCell>Status</TableCell> */}
             </TableRow>
           </TableHead>
           <TableBody>
