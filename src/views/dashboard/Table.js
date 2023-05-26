@@ -9,6 +9,7 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
+import Link from 'next/link'
 
 const statusObj = {
   applied: { color: 'info' },
@@ -39,7 +40,7 @@ const DashboardTable = ({ pacientes }) => {
               <TableRow hover key={row.id} sx={{ '&:last-of-type td, &:last-of-type th': { border: 0 } }}>
                 <TableCell sx={{ py: theme => `${theme.spacing(0.5)} !important` }}>
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography sx={{ fontWeight: 500, fontSize: '0.875rem !important' }}>{row.nome}</Typography>
+                    <Typography sx={{ fontWeight: 500, fontSize: '0.875rem !important' }}>{<Link sx={{textDecoration: 'none', color: '#ada8bb'}} href='/'>{row.nome}</Link>}</Typography>
                     <Typography variant='caption'>{row.designation}</Typography>
                   </Box>
                 </TableCell>
