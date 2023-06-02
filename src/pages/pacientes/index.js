@@ -1,22 +1,19 @@
-// ** MUI Imports
-import Grid from '@mui/material/Grid'
-
-// ** Styled Component Import
-import ApexChartWrapper from '../../@core/styles/libs/react-apexcharts'
-
-// ** Demo Components Imports
-// import Table from '../../views/dashboard/Table'
+// ** Services Imports
 import { tokenService } from '../../services/auth/tokenService'
-import { useEffect, useState } from 'react'
- import { api } from '../../services/api/api'
+import { api } from '../../services/api/api'
 import { authService } from '../../services/auth/authService'
+
+// ** React
+import * as React from 'react';
+import { useEffect, useState } from 'react'
+
+// ** Section
 import UserListToolbar from '../../sections/pacientes/UserListToolbar'
-import UserListHead from '../../sections/pacientes/UserListHead'
 
-
+// ** Lodash
 import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
-// import { Button, Container, Stack, Typography, Card } from '@mui/material'
+
+// ** MUI Imports
 import {
   Card,
   Table,
@@ -29,6 +26,7 @@ import {
   TableRow,
   MenuItem,
   TableBody,
+  TableHead,
   TableCell,
   Container,
   Typography,
@@ -36,19 +34,14 @@ import {
   TableContainer,
   TablePagination,
 } from '@mui/material';
-import { DataGrid, 	ptBR } from '@mui/x-data-grid';
-import Box from '@mui/material/Box';
-import * as React from 'react';
+import AccountPlusOutline from 'mdi-material-ui/AccountPlusOutline'
+import PencilBoxMultiple from 'mdi-material-ui/PencilBoxMultiple'
 
-const TABLE_HEAD = [
-  { id: 'nome', label: 'Nome', alignRight: false },
-  { id: 'email', label: 'email', alignRight: false },
-  { id: 'sexo', label: 'sexo', alignRight: false },
-  { id: 'ubs', label: 'ubs', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
-  { id: '' },
-];
+// Next
+import { useRouter } from 'next/router'
 
+
+// ** Functions
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -65,8 +58,6 @@ function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-
-
 function applySortFilter(array, comparator, query) {
   const stabilizedThis = array.map((el, index) => [el, index]);
   stabilizedThis.sort((a, b) => {
@@ -81,12 +72,19 @@ function applySortFilter(array, comparator, query) {
 }
 
 
-
 const Pacientes = () => {
 
-
+  // States
   const [pacientes, setPacientes] = useState([])
-
+  const [open, setOpen] = useState(null);
+  const [page, setPage] = useState(0);
+  const [order, setOrder] = useState('asc');
+  const [selected, setSelected] = useState([]);
+  const [orderBy, setOrderBy] = useState('name');
+  const [filterName, setFilterName] = useState('');
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  
+  
   useEffect( async (ctx) => {
     const usuarioAutenticado = await authService.getSession(ctx)
     const endPoint = `${usuarioAutenticado.body.id}/paciente`
@@ -99,20 +97,7 @@ const Pacientes = () => {
     setPacientes(getPacientes.body)
   }, [])
 
-  const [open, setOpen] = useState(null);
-
-  const [page, setPage] = useState(0);
-
-  const [order, setOrder] = useState('asc');
-
-  const [selected, setSelected] = useState([]);
-
-  const [orderBy, setOrderBy] = useState('name');
-
-  const [filterName, setFilterName] = useState('');
-
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
+  // Funções utilizadas na tabela
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
   };
@@ -165,133 +150,80 @@ const Pacientes = () => {
     setFilterName(event.target.value);
   };
 
+
+  // Variaveis
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - pacientes.length) : 0;
-
   const filteredUsers = applySortFilter(pacientes, getComparator(order, orderBy), filterName);
-
   const isNotFound = !filteredUsers.length && !!filterName;
-
- 
-  
-  // const columns = [
-  //   { field: 'id', headerName: 'ID', width: 70 },
-  //   { field: 'nome', headerName: 'Nome', width: 350 },
-  //   { field: 'email', headerName: 'Email', width: 350 },
-  //   { field: 'sexo', headerName: 'Sexo', width: 130 },
-  //   { field: 'ubs', headerName: 'UBS', type: 'number', width: 100 },
-  //   { field: 'acoes', headerName: 'Ações', type: 'number', width: 100 },
-  // ];
-
-  // const numeroPaginacao = pacientes.length
-  
-  // return (
-
-  //   <Container>
-  //     <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-  //       <Typography variant="h4" gutterBottom>
-  //         Pacientes
-  //       </Typography>
-  //       <Button variant="contained" >
-  //         Novo Paciente
-  //       </Button>
-  //     </Stack>
-
-  //     <Card>
-  //       {/* <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
-  //       <Box>
-  //         <DataGrid
-  //           rows={pacientes}
-  //           columns={columns}
-  //           initialState={{
-  //             pagination: {
-  //               paginationModel: {
-  //                 pageSize: 5,
-  //                 page: 0
-  //               },
-  //             },
-  //           }}
-  //           pageSizeOptions={[5, 10]}
-  //           checkboxSelection
-  //           disableRowSelectionOnClick
-  //           localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-  //         />
-  //       </Box>  
-  //     </Card>
-  //   </Container>
-  // )
-
+  const router = useRouter()
 
   return (
     <>
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            User
+            Pacientes
           </Typography>
           <Button variant="contained" >
-            New User
+            <AccountPlusOutline sx={{marginRight: 1, fontSize: '1.375rem', marginBottom: 1}}/>
+            Novo Paciente
           </Button>
         </Stack>
 
         <Card>
           <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
-          {/* <Scrollbar> */}
-            <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
-                <UserListHead
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={pacientes.length}
-                  numSelected={selected.length}
-                  onRequestSort={handleRequestSort}
-                  onSelectAllClick={handleSelectAllClick}
-                />
-                <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, nome, email, sexo, ubs } = row;
-                    const selectedUser = selected.indexOf(nome) !== -1;
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Nome</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Sexo</TableCell>
+                  <TableCell>UBS</TableCell>
+                  <TableCell sx={{width: 5}}>Editar</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                  const { id, nome, email, sexo, ubs } = row;
+                  const selectedUser = selected.indexOf(nome) !== -1;
 
-                    return (
-                      <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedUser}>
-                        <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, nome)} />
-                        </TableCell>
+                  return (
+                    <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedUser}>
 
-                        <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Typography variant="subtitle2" noWrap>
-                              {nome}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
+                      <TableCell component="th" scope="row" padding="none">
+                        <Stack direction="row" alignItems="center" spacing={2}>
+                          <Typography variant="subtitle2" noWrap>
+                            {nome}
+                          </Typography>
+                        </Stack>
+                      </TableCell>
 
-                        <TableCell align="left">{email}</TableCell>
+                      <TableCell align="left">{email}</TableCell>
 
-                        <TableCell align="left">{sexo}</TableCell>
+                      <TableCell align="left">{sexo}</TableCell>
 
-                        <TableCell align="left">{ubs}</TableCell>
+                      <TableCell align="left">{ubs}</TableCell>
+                      
+                      <TableCell align="center">
+                        <IconButton size='small' onClick={() => {router.push(`/${id}`)}}>
+                          <PencilBoxMultiple />
+                        </IconButton>
+                      </TableCell>
 
-                        <TableCell align="left">
-                          {/* <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label> */}
-                        </TableCell>
-
-                        <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
-                            {/* <Iconify icon={'eva:more-vertical-fill'} /> */}
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
+                      {/* <TableCell align="left">
+                        {/* <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label> */}
+                      {/* </TableCell> */} 
                     </TableRow>
-                  )}
-                </TableBody>
-
+                  );
+                })}
+                {emptyRows > 0 && (
+                  <TableRow style={{ height: 53 * emptyRows }}>
+                    <TableCell colSpan={6} />
+                  </TableRow>
+                )}
+              </TableBody>
                 {isNotFound && (
                   <TableBody>
                     <TableRow>
@@ -302,22 +234,21 @@ const Pacientes = () => {
                           }}
                         >
                           <Typography variant="h6" paragraph>
-                            Not found
+                            Não encontrado
                           </Typography>
 
                           <Typography variant="body2">
-                            No results found for &nbsp;
+                            Não foram encontrados resultados para &nbsp;
                             <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Try checking for typos or using complete words.
+                            <br /> Tente verificar se há erros de digitação ou usar palavras completas.
                           </Typography>
                         </Paper>
                       </TableCell>
                     </TableRow>
                   </TableBody>
                 )}
-              </Table>
-            </TableContainer>
-          {/* </Scrollbar> */}
+            </Table>
+          </TableContainer>
 
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
@@ -330,40 +261,8 @@ const Pacientes = () => {
           />
         </Card>
       </Container>
-
-      <Popover
-        open={Boolean(open)}
-        anchorEl={open}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: {
-            p: 1,
-            width: 140,
-            '& .MuiMenuItem-root': {
-              px: 1,
-              typography: 'body2',
-              borderRadius: 0.75,
-            },
-          },
-        }}
-      >
-        <MenuItem>
-          {/* <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} /> */}
-          Edit
-        </MenuItem>
-
-        <MenuItem sx={{ color: 'error.main' }}>
-          {/* <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} /> */}
-          Delete
-        </MenuItem>
-      </Popover>
     </>
   );
-
-
-
 }
 
 export default Pacientes
@@ -384,13 +283,3 @@ export const getServerSideProps = async (ctx) => {
     props: {}
   }
 }
- 
-
-{/* <ApexChartWrapper>
-<Grid container spacing={6}>
-  <Grid item xs={12}>
-    <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
-    <Table pacientes={pacientes}/>
-  </Grid>
-</Grid>
-</ApexChartWrapper> */}

@@ -45,6 +45,7 @@ import * as Yup from 'yup';
 import { FormHelperText } from '@mui/material'
 import { useAuth } from '../@core/hooks/useAuth'
 
+
 // ** Styled Components
 const Card = styled(MuiCard)(({ theme }) => ({
   [theme.breakpoints.up('sm')]: { width: '28rem' }
@@ -63,9 +64,8 @@ const FormControlLabel = styled(MuiFormControlLabel)(({ theme }) => ({
   }
 }))
 
-const LoginPage = () => {
 
-  const auth = useAuth()
+const LoginPage = () => {
 
   // ** State
   const [values, setValues] = useState({
@@ -77,7 +77,9 @@ const LoginPage = () => {
   // ** Hook
   const theme = useTheme()
   const router = useRouter()
+  const auth = useAuth()
 
+  // ** Functions
   function handleChange (event) {
     const fieldValue = event.target.value
     const fieldName = event.target.name
@@ -97,10 +99,11 @@ const LoginPage = () => {
     event.preventDefault()
   }
 
+  // ** Formik
   const formik = useFormik({
     initialValues: {
-      email: 'lurian502@gmail.com',
-      senha: '1234568',
+      email: 'ana@gmail.com',
+      senha: '12345678',
       submit: null
     },
     validationSchema: Yup.object({
@@ -131,14 +134,12 @@ const LoginPage = () => {
     <Box className='content-center'>
       <Card sx={{ zIndex: 1 }}>
         <CardContent sx={{ padding: theme => `${theme.spacing(12, 9, 7)} !important` }}>
-        
           <Box sx={{ mb: 6, textAlign: 'center' }}>
             <Image 
               src={imagemLogo} 
               alt='Imagem logo'
               width={250}
               height={250}
-              // className={styles.imagem_logo}
               priority={true}
             />
             <Typography variant='body2'>Por favor, entre com sua conta para ter acesso</Typography>
@@ -210,8 +211,6 @@ const LoginPage = () => {
               variant='contained'
               sx={{ marginBottom: 7 }}
               type='submit'
-              // onClick={() => router.push('/dashboard')}
-
             >
               Entrar
             </Button>

@@ -1,26 +1,26 @@
 // ** React Imports
-import { useState } from 'react'
+import { useState, forwardRef } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
-import Link from '@mui/material/Link'
-import Alert from '@mui/material/Alert'
-import Select from '@mui/material/Select'
 import { styled } from '@mui/material/styles'
-import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import InputLabel from '@mui/material/InputLabel'
-import AlertTitle from '@mui/material/AlertTitle'
-import IconButton from '@mui/material/IconButton'
 import CardContent from '@mui/material/CardContent'
-import FormControl from '@mui/material/FormControl'
 import Button from '@mui/material/Button'
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
-// ** Icons Imports
-import Close from 'mdi-material-ui/Close'
+// ** Foormik and yup Imports
+import { useFormik } from 'formik'
+import * as Yup from 'yup';
 
+// ** Api Import
+import { api } from '../../services/api/api'
+
+
+// Estilizações
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
   height: 120,
@@ -45,13 +45,27 @@ const ResetButtonStyled = styled(Button)(({ theme }) => ({
   }
 }))
 
-const TabAccount = ({user}) => {
+// Notificação
+const Alert = forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} sx={{ width: '100%', backgroundColor: '#10B981', color:'rgba(231, 227, 252, 0.87)' }}/>;
+});
 
-  // console.log(user)
+const TabAccount = ({user}) => {
   
   // ** State
   const [openAlert, setOpenAlert] = useState(true)
   const [imgSrc, setImgSrc] = useState('/images/avatars/1.png')
+  const [open, setOpen] = useState(false);
+  const [resposta, setResposta] = useState();
+
+  // Functions
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
 
   const onChange = file => {
     const reader = new FileReader()
@@ -62,16 +76,64 @@ const TabAccount = ({user}) => {
     }
   }
 
+  const atualizaUsuario = async (values) => {
+    const endPoint = `nutricionista/${user.id}`
+    const infos = {
+      email: values.email, 
+      nome: values.nome
+    }
+
+    const resposta = await api.putInformation(endPoint, infos)
+
+    return resposta
+  }
+
+  // Formik
+  const formik = useFormik({
+    initialValues: {
+      email: user.email,
+      nome: user.nome,
+      submit: null
+    },
+    enableReinitialize: true,
+    validationSchema: Yup.object({
+      email: Yup
+        .string()
+        .email('Email inválido')
+        .max(255)
+        .required('Email é obrigatório'),
+      nome: Yup
+        .string()
+        .max(255)
+        .required('Nome é obrigatória')
+    }),
+    onSubmit: async (values, helpers) => {
+      try {
+        const res = await atualizaUsuario(values)
+        console.log(res.body.msg)
+
+        setResposta(res.body.msg)
+        setOpen(true);
+        
+        // window.location.reload(true)  
+      } catch (err) {
+        helpers.setStatus({ success: false });
+        helpers.setErrors({ submit: err.message });
+        helpers.setSubmitting(false);
+      }
+    }
+  });
+
   return (
     <CardContent>
-      <form>
+      <form noValidate autoComplete='off' onSubmit={formik.handleSubmit}>
         <Grid container spacing={7}>
           <Grid item xs={12} sx={{ marginTop: 4.8, marginBottom: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <ImgStyled src={imgSrc} alt='Profile Pic' />
               <Box>
                 <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
-                  Upload New Photo
+                  Carregar nova foto
                   <input
                     hidden
                     type='file'
@@ -84,78 +146,63 @@ const TabAccount = ({user}) => {
                   Reset
                 </ResetButtonStyled>
                 <Typography variant='body2' sx={{ marginTop: 5 }}>
-                  Allowed PNG or JPEG. Max size of 800K.
+                  PNG ou JPEG permitido. Tamanho máximo de 800K.
                 </Typography>
               </Box>
             </Box>
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='Username' placeholder='johnDoe' defaultValue='johnDoe' />
+            <TextField
+              error={!!(formik.touched.email && formik.errors.email)}
+              autoFocus 
+              fullWidth
+              helperText={formik.touched.email && formik.errors.email}
+              id='email' 
+              label='Email'
+              placeholder='email@example.com'
+              name='email'
+              type="email" 
+              value={formik.values.email}
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              sx={{ marginBottom: 4 }} />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='Name' placeholder='John Doe' defaultValue='John Doe' />
-          </Grid>
+
           <Grid item xs={12} sm={6}>
             <TextField
+              error={!!(formik.touched.nome && formik.errors.nome)}
+              autoFocus 
               fullWidth
-              type='email'
-              label='Email'
-              placeholder='johnDoe@example.com'
-              defaultValue=''
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel>Role</InputLabel>
-              <Select label='Role' defaultValue='admin'>
-                <MenuItem value='admin'>Admin</MenuItem>
-                <MenuItem value='author'>Author</MenuItem>
-                <MenuItem value='editor'>Editor</MenuItem>
-                <MenuItem value='maintainer'>Maintainer</MenuItem>
-                <MenuItem value='subscriber'>Subscriber</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel>Status</InputLabel>
-              <Select label='Status' defaultValue='active'>
-                <MenuItem value='active'>Active</MenuItem>
-                <MenuItem value='inactive'>Inactive</MenuItem>
-                <MenuItem value='pending'>Pending</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='Company' placeholder='ABC Pvt. Ltd.' defaultValue='ABC Pvt. Ltd.' />
+              helperText={formik.touched.nome && formik.errors.nome}
+              id='nome' 
+              label='Nome'
+              placeholder='Nome'
+              name='nome'
+              type="text" 
+              value={formik.values.nome}
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              sx={{ marginBottom: 4 }} />
           </Grid>
 
-          {openAlert ? (
-            <Grid item xs={12} sx={{ mb: 3 }}>
-              <Alert
-                severity='warning'
-                sx={{ '& a': { fontWeight: 400 } }}
-                action={
-                  <IconButton size='small' color='inherit' aria-label='close' onClick={() => setOpenAlert(false)}>
-                    <Close fontSize='inherit' />
-                  </IconButton>
-                }
-              >
-                <AlertTitle>Your email is not confirmed. Please check your inbox.</AlertTitle>
-                <Link href='/' onClick={e => e.preventDefault()}>
-                  Resend Confirmation
-                </Link>
+          {formik.errors.submit && (
+            <Snackbar open={open} autoHideDuration={12000000} onClose={handleClose}>
+              <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                {formik.errors.submit}
               </Alert>
-            </Grid>
-          ) : null}
+            </Snackbar>
+          )}
 
+          <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+            <Alert onClose={handleClose} >
+              {resposta}
+            </Alert>
+          </Snackbar>
+        
           <Grid item xs={12}>
-            <Button variant='contained' sx={{ marginRight: 3.5 }}>
-              Save Changes
-            </Button>
-            <Button type='reset' variant='outlined' color='secondary'>
-              Reset
+            <Button variant='contained' sx={{ marginRight: 3.5 }} type='submit'>
+              Salvar
             </Button>
           </Grid>
         </Grid>
