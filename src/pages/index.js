@@ -36,7 +36,7 @@ import BlankLayout from '../@core/layouts/BlankLayout'
 import FooterIllustrationsV1 from '../views/pages/auth/FooterIllustration'
 
 // ** Imports image logo
-import imagemLogo from '../img/logo.png'
+import imagemLogo from '../img/wepik-duotone-modern-healthy-organic-food-logo-20230626195207HvXd.png'
 import Image from 'next/image'
 
 // Import formik e yup
@@ -102,7 +102,7 @@ const LoginPage = () => {
   // ** Formik
   const formik = useFormik({
     initialValues: {
-      email: 'ana@gmail.com',
+      email: 'maria@gmail.com',
       senha: '12345678',
       submit: null
     },
@@ -138,10 +138,12 @@ const LoginPage = () => {
             <Image 
               src={imagemLogo} 
               alt='Imagem logo'
-              width={250}
-              height={250}
+              width={150}
+              height={150}
               priority={true}
             />
+            <Typography variant='h2'>NutriSIG</Typography>
+            <Typography variant='overline'>SISTEMA DE INFORMAÇÃO GERENCIAL PARA NUTRIÇÃO</Typography>
             <Typography variant='body2'>Por favor, entre com sua conta para ter acesso</Typography>
           </Box>
           <form noValidate autoComplete='off' onSubmit={formik.handleSubmit}>

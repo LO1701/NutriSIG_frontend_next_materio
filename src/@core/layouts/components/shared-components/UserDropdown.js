@@ -126,7 +126,6 @@ const UserDropdown = (props) => {
           </Box>
         </Box>
         <Divider sx={{ mt: 0, mb: 1 }} />
-        <Divider />
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose('account-settings')}>
           <Box sx={styles}>
             <AccountCogOutline sx={{ marginRight: 2 }} />

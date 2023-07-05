@@ -157,6 +157,12 @@ const Pacientes = () => {
   const isNotFound = !filteredUsers.length && !!filterName;
   const router = useRouter()
 
+  const handleDropdownClose = url => {
+    if (url) {
+      router.push(url)
+    }
+  }
+
   return (
     <>
       <Container>
@@ -164,7 +170,7 @@ const Pacientes = () => {
           <Typography variant="h4" gutterBottom>
             Pacientes
           </Typography>
-          <Button variant="contained" >
+          <Button variant="contained" onClick={() => handleDropdownClose('pacientes/novo')}>
             <AccountPlusOutline sx={{marginRight: 1, fontSize: '1.375rem', marginBottom: 1}}/>
             Novo Paciente
           </Button>
