@@ -213,7 +213,7 @@ const Pacientes = () => {
                       <TableCell align="left">{ubs}</TableCell>
                       
                       <TableCell align="center">
-                        <IconButton size='small' onClick={() => {router.push(`/${id}`)}}>
+                        <IconButton size='small' onClick={() => {router.push(`pacientes/${id}`)}}>
                           <PencilBoxMultiple />
                         </IconButton>
                       </TableCell>
