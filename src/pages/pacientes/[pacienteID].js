@@ -75,6 +75,7 @@ const PacienteID = () => {
     const [medida, setMedida] = useState([])
     const [plano, setPlano] = useState([])
     const [sexo, setSexo] = useState('Masculino')
+    const [teste, setTeste] = useState()
 
     useEffect( async (ctx) => {
         const usuarioAutenticado = await authService.getSession(ctx)
@@ -90,18 +91,22 @@ const PacienteID = () => {
         setSexo(defineIcone(getPaciente.body)) 
         setPaciente(getPaciente.body)
         setConsulta(getConsultaDoPaciente.body)
-     
-        // // Pegando a ultima medida antropometrica cadastrata na ultima consulta
-        // const endPointMedida = `paciente/consulta/${getConsultaDoPaciente.body.id}/medida/ultima`
-        // const getMedidaDoPaciente = await buscaInformacoes(ctx, endPointMedida);
-        // getMedidaDoPaciente.body.dataFormatada = formataData(getMedidaDoPaciente.body.createdAt)  
-        // setMedida(getMedidaDoPaciente.body)
-         
+
+        if(getConsultaDoPaciente.body.id){
+            // Pegando a ultima medida antropometrica cadastrata na ultima consulta
+            const endPointMedida = `paciente/consulta/${getConsultaDoPaciente.body.id}/medida/ultima`
+            const getMedidaDoPaciente = await buscaInformacoes(ctx, endPointMedida);
+            getMedidaDoPaciente.body.dataFormatada = formataData(getMedidaDoPaciente.body.createdAt)  
+            setMedida(getMedidaDoPaciente.body)
+            
+            // // Pegando todos os planos alimentares cadastrados na ultima consulta
+            // const endPointPlanos = `paciente/${pacienteID}/consulta/${getConsultaDoPaciente.body.id}/plano`
+            // const getPlanoDoPaciente = await buscaInformacoes(ctx, endPointPlanos);    
+            // setPlano(getPlanoDoPaciente.body)
+
+            setTeste(getConsultaDoPaciente.body.id);
+        }
         
-        // // Pegando todos os planos alimentares cadastrados na ultima consulta
-        // const endPointPlanos = `paciente/${pacienteID}/consulta/${getConsultaDoPaciente.body.id}/plano`
-        // const getPlanoDoPaciente = await buscaInformacoes(ctx, endPointPlanos);    
-        // setPlano(getPlanoDoPaciente.body)
 
     }, [])
 
@@ -151,13 +156,14 @@ const PacienteID = () => {
                                     Consultas
                                 </Typography>
                                 <Typography variant='body2'>
-                                {consulta?
+                                {teste?
                                 (`${paciente?.nome} é seu(a) paciente desde ${paciente?.dataDeCriacao}. 
                                     De acordo com a última avaliação antropométrica, realizada em ${medida?.dataFormatada}, ${paciente?.nome} possui:`):
-                                    ('kkk')}
+                                (`${paciente?.nome} é seu(a) paciente desde ${paciente?.dataDeCriacao}. 
+                                    E até o momento não foi cadastrado nenhuma consulta.`)}
                                 </Typography>
                                 <Divider sx={{ marginTop: 6.5, marginBottom: 6.75 }} />
-                                {/* <Grid container spacing={4}>
+                               {teste && (<Grid container spacing={4}>
                                     <Grid item xs={12} sm={5}>
                                         <StyledBox>
                                         <Box sx={{ mb: 6.75, display: 'flex', alignItems: 'center' }}>
@@ -180,7 +186,7 @@ const PacienteID = () => {
                                             <Typography variant='body2'>{medida?.classificacao_imc}</Typography>
                                         </Box>
                                     </Grid>
-                                </Grid> */}
+                                </Grid>)}
                             </CardContent>
                         </Grid>
                         <Grid
@@ -202,17 +208,37 @@ const PacienteID = () => {
                             >
                                 <Box>
                                     <Box sx={{ mb: 3.5, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-                                        <Typography variant='h6'>$</Typography>
-                                        <Typography variant='h6' sx={{ lineHeight: 1, fontWeight: 600, fontSize: '3.75rem !important' }}>
-                                            899
-                                        </Typography>
-                                        <Typography variant='h6'>USD</Typography>
+                                        {/* <TableContainer component={Paper}>
+                                            <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell>Consultas</TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    {rows.map(row => (
+                                                        <TableRow
+                                                        key={row.name}
+                                                        sx={{
+                                                            '&:last-of-type td, &:last-of-type th': {
+                                                            border: 0
+                                                            }
+                                                        }}
+                                                        >
+                                                            <TableCell component='th' scope='row'>
+                                                                {row.name}
+                                                            </TableCell>
+                                                            <TableCell align='right'>{row.calories}</TableCell>
+                                                            <TableCell align='right'>{row.fat}</TableCell>
+                                                            <TableCell align='right'>{row.carbs}</TableCell>
+                                                            <TableCell align='right'>{row.protein}</TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer> */}
                                     </Box>
-                                    <Typography variant='body2' sx={{ mb: 13.75, display: 'flex', flexDirection: 'column' }}>
-                                        <span>5 Tips For Offshore</span>
-                                        <span>Software Development</span>
-                                    </Typography>
-                                    <Button variant='contained'>Contact Now</Button>
+                                    <Button variant='contained'>Adicionar Consulta</Button>
                                 </Box>
                             </CardContent>
                         </Grid>
