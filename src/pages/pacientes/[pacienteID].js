@@ -22,6 +22,17 @@ import AvatarGroup from '@mui/material/AvatarGroup'
 import Grid from '@mui/material/Grid'
 import Divider from '@mui/material/Divider'
 import { styled } from '@mui/material/styles'
+import {
+    Table,
+    Paper,
+    TableRow,
+    TableBody,
+    TableHead,
+    TableCell,
+    Container,
+    TableContainer,
+    IconButton,
+  } from '@mui/material';
 
 // ** Icons Imports
 import TrendingUp from 'mdi-material-ui/TrendingUp'
@@ -39,6 +50,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
 // Images
 import masculino from '../../img/Avatares/Masculino.png'
 import feminino from '../../img/Avatares/Feminino.png'
+import { PencilBoxMultiple } from 'mdi-material-ui';
 
 // Functions
 function defineIcone (paciente) {
@@ -72,6 +84,7 @@ const PacienteID = () => {
     // States
     const [paciente, setPaciente] = useState([])
     const [consulta, setConsulta] = useState([])
+    const [consultaUltima, setConsultaUltima] = useState([])
     const [medida, setMedida] = useState([])
     const [plano, setPlano] = useState([])
     const [sexo, setSexo] = useState('Masculino')
@@ -81,30 +94,35 @@ const PacienteID = () => {
         const usuarioAutenticado = await authService.getSession(ctx)
         
         const endPointPaciente = `${usuarioAutenticado.body.id}/paciente/${pacienteID}`
-        const endPointConsulta = `paciente/${pacienteID}/consulta/ultima` // essa rota pega a ultima consulta cadastrada
+        const endPointConsultaUltima = `paciente/${pacienteID}/consulta/ultima` // essa rota pega a ultima consulta cadastrada
         
         const getPaciente = await buscaInformacoes(ctx, endPointPaciente)
-        const getConsultaDoPaciente = await buscaInformacoes(ctx, endPointConsulta)
+        const getUltimaConsulta = await buscaInformacoes(ctx, endPointConsultaUltima)
          
         getPaciente.body.dataDeCriacao = formataData(getPaciente.body.createdAt)
         
         setSexo(defineIcone(getPaciente.body)) 
         setPaciente(getPaciente.body)
-        setConsulta(getConsultaDoPaciente.body)
+        setConsultaUltima(getUltimaConsulta.body)
 
-        if(getConsultaDoPaciente.body.id){
+        if(getUltimaConsulta.body.id){
             // Pegando a ultima medida antropometrica cadastrata na ultima consulta
-            const endPointMedida = `paciente/consulta/${getConsultaDoPaciente.body.id}/medida/ultima`
+            const endPointMedida = `paciente/consulta/${getUltimaConsulta.body.id}/medida/ultima`
             const getMedidaDoPaciente = await buscaInformacoes(ctx, endPointMedida);
             getMedidaDoPaciente.body.dataFormatada = formataData(getMedidaDoPaciente.body.createdAt)  
             setMedida(getMedidaDoPaciente.body)
             
             // // Pegando todos os planos alimentares cadastrados na ultima consulta
-            // const endPointPlanos = `paciente/${pacienteID}/consulta/${getConsultaDoPaciente.body.id}/plano`
+            // const endPointPlanos = `paciente/${pacienteID}/consulta/${getUltimaConsulta.body.id}/plano`
             // const getPlanoDoPaciente = await buscaInformacoes(ctx, endPointPlanos);    
             // setPlano(getPlanoDoPaciente.body)
 
-            setTeste(getConsultaDoPaciente.body.id);
+            // Pegando todas as consultas
+            const endPointConsulta = `paciente/${pacienteID}/consulta` // essa rota pega a todas as consultas cadastradas
+            const getConsultas = await buscaInformacoes(ctx, endPointConsulta)
+            setConsulta(getConsultas.body)
+
+            setTeste(getUltimaConsulta.body.id);
         }
         
 
@@ -208,35 +226,7 @@ const PacienteID = () => {
                             >
                                 <Box>
                                     <Box sx={{ mb: 3.5, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-                                        {/* <TableContainer component={Paper}>
-                                            <Table sx={{ minWidth: 650 }} aria-label='simple table'>
-                                                <TableHead>
-                                                    <TableRow>
-                                                        <TableCell>Consultas</TableCell>
-                                                    </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                    {rows.map(row => (
-                                                        <TableRow
-                                                        key={row.name}
-                                                        sx={{
-                                                            '&:last-of-type td, &:last-of-type th': {
-                                                            border: 0
-                                                            }
-                                                        }}
-                                                        >
-                                                            <TableCell component='th' scope='row'>
-                                                                {row.name}
-                                                            </TableCell>
-                                                            <TableCell align='right'>{row.calories}</TableCell>
-                                                            <TableCell align='right'>{row.fat}</TableCell>
-                                                            <TableCell align='right'>{row.carbs}</TableCell>
-                                                            <TableCell align='right'>{row.protein}</TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
-                                        </TableContainer> */}
+                                       
                                     </Box>
                                     <Button variant='contained'>Adicionar Consulta</Button>
                                 </Box>
@@ -245,6 +235,51 @@ const PacienteID = () => {
                     </Grid>
                 </Card>
             </Grid>
+            
+
+            {teste && (
+                <Grid item xs={12} md={8}>
+                    <Grid item xs={12}>
+                        <Card>
+                            <TableContainer component={Paper}>
+                                <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>Nome</TableCell>
+                                            <TableCell>Data de atendimento</TableCell>
+                                            <TableCell sx={{width: 5}}>Editar</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {consulta?.map(row => (
+                                            <TableRow
+                                                key={row.id}
+                                                sx={{
+                                                    '&:last-of-type td, &:last-of-type th': {
+                                                    border: 0
+                                                    }
+                                                }}
+                                            >
+                                                <TableCell component='th' scope='row'>
+                                                    {row.nome}
+                                                </TableCell>
+                                                <TableCell component='th' scope='row'>
+                                                    {row.data_atendimento}
+                                                </TableCell>
+                                                <TableCell align="center">
+                                                    <IconButton size='small' onClick={() => {console.log('oi')}}>
+                                                        <PencilBoxMultiple />
+                                                    </IconButton>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Card>
+                    </Grid>
+                </Grid>
+            )}
         </Grid>
     );
 }

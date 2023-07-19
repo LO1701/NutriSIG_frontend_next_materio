@@ -58,6 +58,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import { useRouter } from 'next/router'
 
 
 
@@ -88,12 +89,13 @@ const Alert = forwardRef(function Alert(props, ref) {
 const NovoPaciente = () => {
 
     const auth = useAuth()
+    const router = useRouter()
 
     // ** State
     const [value, setValue] = useState('account')
     const [open, setOpen] = useState(false);
     const [resposta, setResposta] = useState();
-    const [sexo, setSexo] = useState('');
+    const [id, setID] = useState();
 
     const handleChange = (event, newValue) => {
       setValue(newValue)
@@ -165,13 +167,13 @@ const NovoPaciente = () => {
       onSubmit: async (values, helpers) => {
         try {
           const res = await criaPaciente(values)
-          console.log(res.body.msg)
-        
-          console.log(values)
+          console.log(res.body.id)
 
           setResposta(res.body.msg)
-          setOpen(true);
-          
+          setID(res.body.id)
+          setOpen(true)
+
+
           // window.location.reload(true)  
         } catch (err) {
           helpers.setStatus({ success: false });
@@ -397,9 +399,16 @@ const NovoPaciente = () => {
                 </Snackbar>
                 
                 <Grid item xs={12}>
-                  <Button variant='contained' sx={{ marginRight: 3.5 }} type='submit'>
-                    Salvar
-                  </Button>
+                  {!id?
+                  (
+                    <Button variant='contained' sx={{ marginRight: 3.5 }} type='submit'>
+                      Salvar
+                    </Button>
+                  ):(
+                    <Button variant='contained' sx={{ marginRight: 3.5 }} onClick={() => {router.push(`${id}`)}}>
+                      Adicionar consulta
+                    </Button>
+                  )}
                 </Grid>
               </Grid>
             </form>
