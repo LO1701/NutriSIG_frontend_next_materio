@@ -55,7 +55,7 @@ const Error404 = () => {
           <Typography variant='body2'>Não foi possível encontrar a página que você está procurando.</Typography>
         </BoxWrapper>
         <Img height='487' alt='error-illustration' src='/images/pages/error-404.png' />
-        <Link passHref href='/'>
+        <Link passHref href='/dashboard'>
           <Button component='a' variant='contained' sx={{ px: 5.5 }}>
             Voltar para Home
           </Button>

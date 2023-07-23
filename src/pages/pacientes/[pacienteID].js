@@ -86,9 +86,9 @@ const PacienteID = () => {
     const [consulta, setConsulta] = useState([])
     const [consultaUltima, setConsultaUltima] = useState([])
     const [medida, setMedida] = useState([])
-    const [plano, setPlano] = useState([])
     const [sexo, setSexo] = useState('Masculino')
     const [teste, setTeste] = useState()
+    const [testeConsultas, setTesteConsultas] = useState()
 
     useEffect( async (ctx) => {
         const usuarioAutenticado = await authService.getSession(ctx)
@@ -106,6 +106,10 @@ const PacienteID = () => {
         setConsultaUltima(getUltimaConsulta.body)
 
         if(getUltimaConsulta.body.id){
+
+            // esse set é utilizado para quando o paciente possui uma ou mais consultas (Vai renderizar a lista de consultas)
+            setTesteConsultas(getUltimaConsulta.body.id)
+
             // Pegando a ultima medida antropometrica cadastrata na ultima consulta
             const endPointMedida = `paciente/consulta/${getUltimaConsulta.body.id}/medida/ultima`
             const getMedidaDoPaciente = await buscaInformacoes(ctx, endPointMedida);
@@ -121,8 +125,11 @@ const PacienteID = () => {
             const endPointConsulta = `paciente/${pacienteID}/consulta` // essa rota pega a todas as consultas cadastradas
             const getConsultas = await buscaInformacoes(ctx, endPointConsulta)
             setConsulta(getConsultas.body)
-
-            setTeste(getUltimaConsulta.body.id);
+            
+            // esse if esta sendo utilizado para quando o paciente possui consulta cadastrada mas não possui nenhuma medida cadastrada
+            if(getMedidaDoPaciente.body.id){
+                setTeste(getUltimaConsulta.body.id);
+            }
         }
         
 
@@ -178,7 +185,7 @@ const PacienteID = () => {
                                 (`${paciente?.nome} é seu(a) paciente desde ${paciente?.dataDeCriacao}. 
                                     De acordo com a última avaliação antropométrica, realizada em ${medida?.dataFormatada}, ${paciente?.nome} possui:`):
                                 (`${paciente?.nome} é seu(a) paciente desde ${paciente?.dataDeCriacao}. 
-                                    E até o momento não foi cadastrado nenhuma consulta.`)}
+                                    E até o momento não foi cadastrado nenhuma ${testeConsultas? 'medida antropométrica': 'consulta'}.`)}
                                 </Typography>
                                 <Divider sx={{ marginTop: 6.5, marginBottom: 6.75 }} />
                                {teste && (<Grid container spacing={4}>
@@ -228,7 +235,7 @@ const PacienteID = () => {
                                     <Box sx={{ mb: 3.5, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
                                        
                                     </Box>
-                                    <Button variant='contained'>Adicionar Consulta</Button>
+                                    <Button variant='contained' onClick={() => {router.push(`${paciente?.id}/novo/consulta`)}}>Adicionar Consulta</Button>
                                 </Box>
                             </CardContent>
                         </Grid>
@@ -237,7 +244,7 @@ const PacienteID = () => {
             </Grid>
             
 
-            {teste && (
+            {testeConsultas && (
                 <Grid item xs={12} md={8}>
                     <Grid item xs={12}>
                         <Card>
@@ -267,7 +274,7 @@ const PacienteID = () => {
                                                     {row.data_atendimento}
                                                 </TableCell>
                                                 <TableCell align="center">
-                                                    <IconButton size='small' onClick={() => {console.log('oi')}}>
+                                                    <IconButton size='small' onClick={() => {router.push(`${paciente?.id}/consulta/${row.id}/perfil`)}}>
                                                         <PencilBoxMultiple />
                                                     </IconButton>
                                                 </TableCell>

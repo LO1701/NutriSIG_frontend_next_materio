@@ -83,7 +83,7 @@ const TabName = styled('span')(({ theme }) => ({
 
 // Notificação
 const Alert = forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} sx={{ width: '100%', backgroundColor: '#10B981', color:'rgba(231, 227, 252, 0.87)' }}/>;
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} sx={{ width: '100%', backgroundColor: '#10B981', color:'#FFF' }}/>;
 });
 
 const NovoPaciente = () => {
@@ -172,6 +172,10 @@ const NovoPaciente = () => {
           setResposta(res.body.msg)
           setID(res.body.id)
           setOpen(true)
+
+          setTimeout(function() {
+            window.location.replace(`http://localhost:3000/pacientes/${res.body.id}`)
+          }, 2000)
 
 
           // window.location.reload(true)  
@@ -398,17 +402,10 @@ const NovoPaciente = () => {
                   </Alert>
                 </Snackbar>
                 
-                <Grid item xs={12}>
-                  {!id?
-                  (
-                    <Button variant='contained' sx={{ marginRight: 3.5 }} type='submit'>
+                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <Button variant='contained' type='submit'>
                       Salvar
                     </Button>
-                  ):(
-                    <Button variant='contained' sx={{ marginRight: 3.5 }} onClick={() => {router.push(`${id}`)}}>
-                      Adicionar consulta
-                    </Button>
-                  )}
                 </Grid>
               </Grid>
             </form>

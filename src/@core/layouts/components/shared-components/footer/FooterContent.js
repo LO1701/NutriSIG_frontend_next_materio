@@ -10,7 +10,7 @@ const FooterContent = () => {
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', margin: '30px' }}>
       <Typography sx={{ mr: 2 }}>
-        {`© ${new Date().getFullYear()}, Viva Bem`}
+        {`© ${new Date().getFullYear()}, NutriSIG`}
       </Typography>
     </Box>
   )
