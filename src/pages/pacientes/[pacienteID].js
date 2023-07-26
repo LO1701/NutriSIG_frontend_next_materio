@@ -185,7 +185,7 @@ const PacienteID = () => {
                                 (`${paciente?.nome} é seu(a) paciente desde ${paciente?.dataDeCriacao}. 
                                     De acordo com a última avaliação antropométrica, realizada em ${medida?.dataFormatada}, ${paciente?.nome} possui:`):
                                 (`${paciente?.nome} é seu(a) paciente desde ${paciente?.dataDeCriacao}. 
-                                    E até o momento não foi cadastrado nenhuma ${testeConsultas? 'medida antropométrica': 'consulta'}.`)}
+                                    ${testeConsultas? 'E não foi cadastrado nenhuma medida antropométrica na última consulta': 'E não foi cadastrada nenhuma consulta'}.`)}
                                 </Typography>
                                 <Divider sx={{ marginTop: 6.5, marginBottom: 6.75 }} />
                                {teste && (<Grid container spacing={4}>
