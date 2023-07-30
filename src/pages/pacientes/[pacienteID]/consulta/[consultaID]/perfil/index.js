@@ -31,6 +31,8 @@ import {
   CardActions,
 } from '@mui/material';
 import AccountPlusOutline from 'mdi-material-ui/AccountPlusOutline'
+import Nutrition from 'mdi-material-ui/Nutrition'
+import ScaleBathroom from 'mdi-material-ui/ScaleBathroom' 
 import PencilBoxMultiple from 'mdi-material-ui/PencilBoxMultiple'
 import Grid from '@mui/material/Grid'
 import Divider from '@mui/material/Divider'
@@ -90,15 +92,19 @@ const Perfil = () => {
       const endPointExames = `paciente/consulta/${consultaID}/exame`
       const getExames = await buscaInformacoes(ctx, endPointExames)
       setExame(getExames.body)
+      // console.log(exame)
 
       // Busca todas anamneses
       const endPointAnamnese = `paciente/consulta/${consultaID}/anamnese`
       const getAnamnese = await buscaInformacoes(ctx, endPointAnamnese)
-      const data = formataData(getAnamnese.body[0].createdAt)
-      getAnamnese.body.push({dataDeCriacao: data})
-      setAnamnese(getAnamnese.body)
-      // console.log(getAnamnese.body)
 
+      if(getAnamnese.body.length > 0){
+        const data = formataData(getAnamnese.body[0]?.createdAt)
+        getAnamnese.body.push({dataDeCriacao: data})
+        setAnamnese(getAnamnese.body)
+      }
+        
+      // console.log(getAnamnese.body.length)
 
     }, [])
 
@@ -154,8 +160,12 @@ const Perfil = () => {
                   </Typography>
               )}
             </CardContent>
-            <CardActions className='card-action-dense'>
-              <Button>Editar</Button>
+            <CardActions className='card-action-dense' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              {anamnese?.length > 0?(
+                <Button onClick={() => {window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese/${anamnese[0]?.id}`)}}>Editar</Button>
+              ):(
+                <Button onClick={() => {window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese`)}}>Adicionar</Button>
+              )}
             </CardActions>
           </Card>
         </Grid>
@@ -164,7 +174,7 @@ const Perfil = () => {
           <Card>
             <CardHeader title='Exames Laboratoriais' />
             <CardContent>
-            {anamnese?.length > 0? (
+            {exame?.length > 0? (
                 <>
                   <Typography variant='body2' sx={{ marginBottom: 3.25 }}>
                     Computers have become ubiquitous in almost every facet of our lives. At work, desk jockeys spend hours in
@@ -179,12 +189,12 @@ const Perfil = () => {
                 ):(
                   <Typography variant="subtitle1" gutterBottom sx={{display: 'flex', justifyContent: 'center', margin:10}}>
                     <CloseBoxMultiple sx={{marginRight: 2, fontSize: '1.375rem',}}/>
-                    Nenhuma anamnese cadastrada
+                    Nenhum exame laboratorial cadastrado
                   </Typography>
               )}
             </CardContent>
-            <CardActions className='card-action-dense'>
-              <Button>Editar</Button>
+            <CardActions className='card- action-dense' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button>{exame?.length > 0? 'Editar': 'Adicionar'}</Button>
             </CardActions>
           </Card>
         </Grid>
@@ -197,7 +207,7 @@ const Perfil = () => {
               Medidas Antropométricas
             </Typography>
             <Button variant="contained" onClick={() => console.log('oi')}>
-              <AccountPlusOutline sx={{marginRight: 1, fontSize: '1.375rem', marginBottom: 1}}/>
+              <ScaleBathroom sx={{marginRight: 1, fontSize: '1.375rem', marginBottom: 1}}/>
               Adicionar
             </Button>
           </Stack>
@@ -274,7 +284,7 @@ const Perfil = () => {
               Plano Alimentar
             </Typography>
             <Button variant="contained" onClick={() => console.log('oi')}>
-              <AccountPlusOutline sx={{marginRight: 1, fontSize: '1.375rem', marginBottom: 1}}/>
+              <Nutrition sx={{marginRight: 1, fontSize: '1.375rem', marginBottom: 1}}/>
               Adicionar
             </Button>
           </Stack>

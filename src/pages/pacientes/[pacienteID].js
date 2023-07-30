@@ -185,7 +185,7 @@ const PacienteID = () => {
                                 (`${paciente?.nome} é seu(a) paciente desde ${paciente?.dataDeCriacao}. 
                                     De acordo com a última avaliação antropométrica, realizada em ${medida?.dataFormatada}, ${paciente?.nome} possui:`):
                                 (`${paciente?.nome} é seu(a) paciente desde ${paciente?.dataDeCriacao}. 
-                                    ${testeConsultas? 'E não foi cadastrado nenhuma medida antropométrica na última consulta': 'E não foi cadastrada nenhuma consulta'}.`)}
+                                    ${testeConsultas? 'E não foi cadastrada nenhuma medida antropométrica na última consulta': 'E não foi cadastrada nenhuma consulta'}.`)}
                                 </Typography>
                                 <Divider sx={{ marginTop: 6.5, marginBottom: 6.75 }} />
                                {teste && (<Grid container spacing={4}>
@@ -241,52 +241,51 @@ const PacienteID = () => {
                         </Grid>
                     </Grid>
                 </Card>
-            </Grid>
-            
 
-            {testeConsultas && (
-                <Grid item xs={12} md={8}>
-                    <Grid item xs={12}>
-                        <Card>
-                            <TableContainer component={Paper}>
-                                <Table sx={{ minWidth: 650 }} aria-label='simple table'>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>Nome</TableCell>
-                                            <TableCell>Data de atendimento</TableCell>
-                                            <TableCell sx={{width: 5}}>Editar</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {consulta?.map(row => (
-                                            <TableRow
-                                                key={row.id}
-                                                sx={{
-                                                    '&:last-of-type td, &:last-of-type th': {
-                                                    border: 0
-                                                    }
-                                                }}
-                                            >
-                                                <TableCell component='th' scope='row'>
-                                                    {row.nome}
-                                                </TableCell>
-                                                <TableCell component='th' scope='row'>
-                                                    {row.data_atendimento}
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    <IconButton size='small' onClick={() => {router.push(`${paciente?.id}/consulta/${row.id}/perfil`)}}>
-                                                        <PencilBoxMultiple />
-                                                    </IconButton>
-                                                </TableCell>
+                {testeConsultas && (
+                    <Grid item xs={12} md={12} sx={{marginTop:3}}>
+                        <Grid item xs={12}>
+                            <Card>
+                                <TableContainer component={Paper}>
+                                    <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>Nome</TableCell>
+                                                <TableCell>Data de atendimento</TableCell>
+                                                <TableCell sx={{width: 5}}>Editar</TableCell>
                                             </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </Card>
+                                        </TableHead>
+                                        <TableBody>
+                                            {consulta?.map(row => (
+                                                <TableRow
+                                                    key={row.id}
+                                                    sx={{
+                                                        '&:last-of-type td, &:last-of-type th': {
+                                                        border: 0
+                                                        }
+                                                    }}
+                                                >
+                                                    <TableCell component='th' scope='row'>
+                                                        {row.nome}
+                                                    </TableCell>
+                                                    <TableCell component='th' scope='row'>
+                                                        {row.data_atendimento}
+                                                    </TableCell>
+                                                    <TableCell align="center">
+                                                        <IconButton size='small' onClick={() => {router.push(`${paciente?.id}/consulta/${row.id}/perfil`)}}>
+                                                            <PencilBoxMultiple />
+                                                        </IconButton>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            </Card>
+                        </Grid>
                     </Grid>
-                </Grid>
-            )}
+                )}
+            </Grid>
         </Grid>
     );
 }
