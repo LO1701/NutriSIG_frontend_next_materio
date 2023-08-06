@@ -65,10 +65,17 @@ const Perfil = () => {
 
     function formataData (data) {
       const date = new Date(data)
-      const dataDeCriacao = `${date.getDate()}/0${date.getMonth()+1}/${date.getFullYear()}`
+      let dia = null
+
+      if(date.getDate()<10)
+        dia = `0${date.getDate()}`
+      else
+        dia = date.getDate()
+
+      const dataDeCriacao = `${dia}/0${date.getMonth()+1}/${date.getFullYear()}`
       
       return dataDeCriacao
-  }
+    }
 
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [page, setPage] = useState(0);
@@ -103,8 +110,6 @@ const Perfil = () => {
         getAnamnese.body.push({dataDeCriacao: data})
         setAnamnese(getAnamnese.body)
       }
-        
-      // console.log(getAnamnese.body.length)
 
     }, [])
 
@@ -128,29 +133,29 @@ const Perfil = () => {
             {anamnese?.length > 0? (
                 <>
                   <Typography variant='body2' sx={{ marginBottom: 3.25 }}>
-                    A anamnese do paciente foi cadastrada no dia {anamnese[14]?.dataDeCriacao}. Abaixo
+                    A anamnese do paciente foi cadastrada no dia {anamnese[13]?.dataDeCriacao}. Abaixo
                     segue um breve resumo de algumas informações cadastradas.
                   </Typography>
                   <Divider />
                   <Typography variant='body1'>
-                    - {anamnese[0]?.questao}?
+                    {anamnese[0]?.questao}
                   </Typography>
                   <Typography variant='body2' mb={4} ml={5}>
                     {anamnese[0]?.resposta}
                   </Typography>
 
                   <Typography variant='body1'>
-                    - {anamnese[11]?.questao}?
+                    {anamnese[9]?.questao}
                   </Typography>
                   <Typography variant='body2' mb={4} ml={5}>
-                    {anamnese[11]?.resposta}
+                    {anamnese[9]?.resposta}
                   </Typography>
 
                   <Typography variant='body1'>
-                    - {anamnese[13]?.questao}?
+                    {anamnese[11]?.questao}
                   </Typography>
                   <Typography variant='body2'ml={5}>
-                    {anamnese[13]?.resposta}
+                    {anamnese[11]?.resposta}
                   </Typography>
                 </>
                 ):(

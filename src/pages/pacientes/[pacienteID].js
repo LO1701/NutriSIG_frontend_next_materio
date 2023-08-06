@@ -63,7 +63,15 @@ function defineIcone (paciente) {
 
 function formataData (data) {
     const date = new Date(data)
-    const dataDeCriacao = `${date.getDate()}/0${date.getMonth()+1}/${date.getFullYear()}`
+    let diaFormatado = null
+    let diaSemFormatacao = date.getDate()+1 //tá somando um por que quando converte para número sempre vem 1 a menos
+
+    if(date.getDate()<10)
+        diaFormatado = `0${diaSemFormatacao}`
+      else
+        diaFormatado = diaSemFormatacao
+
+    const dataDeCriacao = `${diaFormatado}/0${date.getMonth()+1}/${date.getFullYear()}`
     
     return dataDeCriacao
 }
@@ -124,6 +132,12 @@ const PacienteID = () => {
             // Pegando todas as consultas
             const endPointConsulta = `paciente/${pacienteID}/consulta` // essa rota pega a todas as consultas cadastradas
             const getConsultas = await buscaInformacoes(ctx, endPointConsulta)
+
+            getConsultas.body.forEach(element => {
+                const dataAtendimentoFormatada = formataData(element.data_atendimento) 
+                element.dataAtendimentoFormatada = dataAtendimentoFormatada
+            });
+
             setConsulta(getConsultas.body)
             
             // esse if esta sendo utilizado para quando o paciente possui consulta cadastrada mas não possui nenhuma medida cadastrada
@@ -269,7 +283,7 @@ const PacienteID = () => {
                                                         {row.nome}
                                                     </TableCell>
                                                     <TableCell component='th' scope='row'>
-                                                        {row.data_atendimento}
+                                                        {row.dataAtendimentoFormatada}
                                                     </TableCell>
                                                     <TableCell align="center">
                                                         <IconButton size='small' onClick={() => {router.push(`${paciente?.id}/consulta/${row.id}/perfil`)}}>
