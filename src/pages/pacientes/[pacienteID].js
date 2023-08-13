@@ -106,7 +106,7 @@ const PacienteID = () => {
         
         const getPaciente = await buscaInformacoes(ctx, endPointPaciente)
         const getUltimaConsulta = await buscaInformacoes(ctx, endPointConsultaUltima)
-         
+     
         getPaciente.body.dataDeCriacao = formataData(getPaciente.body.createdAt)
         
         setSexo(defineIcone(getPaciente.body)) 

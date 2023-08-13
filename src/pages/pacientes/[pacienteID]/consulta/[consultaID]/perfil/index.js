@@ -48,6 +48,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react';
 import { forEach } from 'lodash';
 import { element } from 'prop-types';
+import Link from 'next/link';
 
 const Perfil = () => {
 
@@ -82,6 +83,7 @@ const Perfil = () => {
     const [medida, setMedida] = useState([])
     const [exame, setExame] = useState([])
     const [anamnese, setAnamnese] = useState([])
+    const [planoAlimentar, setPlanoAlimentar] = useState([])
 
     useEffect( async (ctx) => {
       // Busca todas as Medidas antropométricas
@@ -93,13 +95,11 @@ const Perfil = () => {
         getMedidas.body[index].dataDeCriacao = date
       })
       setMedida(getMedidas.body)
-      // console.log(medida)
 
       // Busca todos os Exames laboratoriais
       const endPointExames = `paciente/consulta/${consultaID}/exame`
       const getExames = await buscaInformacoes(ctx, endPointExames)
       setExame(getExames.body)
-      // console.log(exame)
 
       // Busca todas anamneses
       const endPointAnamnese = `paciente/consulta/${consultaID}/anamnese`
@@ -110,6 +110,12 @@ const Perfil = () => {
         getAnamnese.body.push({dataDeCriacao: data})
         setAnamnese(getAnamnese.body)
       }
+
+      // Busca todos planos alimentares
+      const endPointPlanoAlimentar = `paciente/${pacienteID}/consulta/${consultaID}/plano`
+      const getPlanosAlimentares = await buscaInformacoes(ctx, endPointPlanoAlimentar)
+      setPlanoAlimentar(getPlanosAlimentares.body)
+
 
     }, [])
 
@@ -288,25 +294,28 @@ const Perfil = () => {
             <Typography variant="h5" gutterBottom>
               Plano Alimentar
             </Typography>
-            <Button variant="contained" onClick={() => console.log('oi')}>
-              <Nutrition sx={{marginRight: 1, fontSize: '1.375rem', marginBottom: 1}}/>
-              Adicionar
-            </Button>
+            <Link href={`/pacientes/${pacienteID}/consulta/${consultaID}/planoAlimentar`} passHref legacyBehavior>
+              <Button variant="contained">
+                <Nutrition sx={{marginRight: 1, fontSize: '1.375rem', marginBottom: 1}}/>
+                Adicionar
+              </Button>
+            </Link>
           </Stack>
 
-          {exame?.length > 0? (
+          {planoAlimentar?.length > 0? (
             <>
               <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label='simple table'>
                   <TableHead>
                       <TableRow>
                           <TableCell>Nome</TableCell>
-                          <TableCell>Data de cadastro no sistema</TableCell>
+                          <TableCell>Data de validade</TableCell>
+                          <TableCell>Máximo kcal </TableCell>
                           <TableCell sx={{width: 5}}>Editar</TableCell>
                       </TableRow>
                   </TableHead>
                   <TableBody>
-                      {exame?.map(row => (
+                      {planoAlimentar?.map(row => (
                           <TableRow
                               key={row.id}
                               sx={{
@@ -319,10 +328,13 @@ const Perfil = () => {
                                   {row.nome}
                               </TableCell>
                               <TableCell component='th' scope='row'>
-                                  {row.createdAt}
+                                  {row.validade}
+                              </TableCell>
+                              <TableCell component='th' scope='row'>
+                                  {row.teto_kcal}
                               </TableCell>
                               <TableCell align="center">
-                                  <IconButton size='small' onClick={() => {router.push(`${paciente?.id}/consulta/${row.id}/perfil`)}}>
+                                  <IconButton size='small' onClick={() => {window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/planoAlimentar/${row.id}`)}}>
                                       <PencilBoxMultiple />
                                   </IconButton>
                               </TableCell>
@@ -335,7 +347,7 @@ const Perfil = () => {
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
-                count={exame.length}
+                count={planoAlimentar.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
