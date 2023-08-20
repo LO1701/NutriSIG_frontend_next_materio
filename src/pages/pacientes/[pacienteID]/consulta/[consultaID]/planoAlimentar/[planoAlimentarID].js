@@ -1,6 +1,9 @@
 // ** Icons Imports
-import AccountOutline from 'mdi-material-ui/AccountOutline'
 import CloseBoxMultiple from 'mdi-material-ui/CloseBoxMultiple'
+import CalendarRange from 'mdi-material-ui/CalendarRange'
+import CardTextOutline from 'mdi-material-ui/CardTextOutline'
+import ClockTimeEightOutline from 'mdi-material-ui/ClockTimeEightOutline'
+
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
@@ -9,33 +12,27 @@ import { tokenService } from '../../../../../../services/auth/tokenService'
 // ** MUI Imports
 import {
   Card,
-  Table,
   Stack,
-  Paper,
-  Avatar,
   Button,
-  Popover,
-  Checkbox,
-  TableRow,
-  MenuItem,
-  TableBody,
-  TableHead,
-  TableCell,
   Container,
   Typography,
-  IconButton,
-  TableContainer,
-  TablePagination,
   CardHeader,
   CardContent,
   CardActions,
+  TextField,
+  InputAdornment,
 } from '@mui/material';
-import AccountPlusOutline from 'mdi-material-ui/AccountPlusOutline'
-import Nutrition from 'mdi-material-ui/Nutrition'
-import ScaleBathroom from 'mdi-material-ui/ScaleBathroom' 
-import PencilBoxMultiple from 'mdi-material-ui/PencilBoxMultiple'
+import ScaleBathroom from 'mdi-material-ui/ScaleBathroom'
 import Grid from '@mui/material/Grid'
 import Divider from '@mui/material/Divider'
+import { styled } from '@mui/material/styles'
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import Snackbar from '@mui/material/Snackbar'
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import MuiAlert from '@mui/material/Alert';
 
 // ** Api Import
 import { api } from '../../../../../../services/api/api'
@@ -45,72 +42,166 @@ import 'dayjs/locale/en-gb';
 
 // ** import Select
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react';
-import { forEach } from 'lodash';
-import { element } from 'prop-types';
-import Link from 'next/link';
+import { useEffect, useState, forwardRef } from 'react';
 import { authService } from '../../../../../../services/auth/authService';
+
+// ** Foormik and yup Imports
+import { useFormik } from 'formik'
+import * as Yup from 'yup';
+import { FormTextbox } from 'mdi-material-ui';
+
 
 const PlanoID = () => {
 
-    const router = useRouter()
-    
+  const router = useRouter()
 
-    const pacienteID = router.query.pacienteID
-    const consultaID = router.query.consultaID
-    const planoAlimentarID = router.query.planoAlimentarID
+  const pacienteID = router.query.pacienteID
+  const consultaID = router.query.consultaID
+  const planoAlimentarID = router.query.planoAlimentarID
 
-    const buscaInformacoes = async (ctx, endPoint) => {
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [page, setPage] = useState(0);
+  const [medida, setMedida] = useState([])
+  const [planoAlimentar, setPlanoAlimentar] = useState([])
+  const [refeicoes, setRefeicoes] = useState([])
+  const [open, setOpen] = useState(false)
+  const [openMensage, setOpenMensage] = useState(false)
+  const [resposta, setResposta] = useState()
+
+
+  // Notificação
+  const Alert = forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} sx={{ width: '100%', backgroundColor: '#10B981', color: '#FFF' }} />;
+  });
+
+  const buscaInformacoes = async (ctx, endPoint) => {
+
+    const resposta = await api.getInformation(ctx, endPoint)
+
+    return resposta
+  }
+
+  const criaRefeicao = async (valores, ctx) => {
+    const usuarioAutenticado = await authService.getSession(ctx)
+
+    const endPoint = `${usuarioAutenticado.body.id}/paciente/consulta/plano/${planoAlimentarID}/refeicao`
+
+    const resposta = await api.postInformation(endPoint, valores)
+
+    return resposta
+  }
+
+  function formataData(data) {
+    const date = new Date(data)
+    let dia = null
+
+    if (date.getDate() < 10)
+      dia = `0${date.getDate()}`
+    else
+      dia = date.getDate()
+
+    const dataDeCriacao = `${dia}/0${date.getMonth() + 1}/${date.getFullYear()}`
+
+    return dataDeCriacao
+  }
+
+  useEffect(async (ctx) => {
+    const usuarioAutenticado = await authService.getSession(ctx)
+
+    // Busca informações do plano alimentar
+    const endPointPlanoAlimentar = `paciente/consulta/${consultaID}/plano/${planoAlimentarID}`
+    const getPlanoAlimentar = await buscaInformacoes(ctx, endPointPlanoAlimentar)
+    setPlanoAlimentar(getPlanoAlimentar.body)
+
+    // Busca todas refeicoes
+    const endPointRefeicoes = `${usuarioAutenticado.body.id}/paciente/consulta/plano/${planoAlimentarID}/refeicao`
+    const getRefeicoes = await buscaInformacoes(ctx, endPointRefeicoes)
+    setRefeicoes(getRefeicoes.body)
+    console.log(refeicoes)
+
+  }, [])
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setPage(0);
+    setRowsPerPage(parseInt(event.target.value, 10));
+  };
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleCloseMensage = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenMensage(false);
+  };
+
+  const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+    '& .MuiDialogContent-root': {
+      padding: theme.spacing(2),
+    },
+    '& .MuiDialogActions-root': {
+      padding: theme.spacing(1),
+    },
+  }));
+
+  // Formik
+  const formikRefeicoes = useFormik({
+    initialValues: {
+      nome: '',
+      horario: '',
+      turno: '',
+      descricao: '',
+      submit: null
+    },
+    enableReinitialize: true,
+    validationSchema: Yup.object({
+      nome: Yup
+        .string()
+        .max(255)
+        .required('Nome é obrigatório'),
+      horario: Yup
+        .string()
+        .required('Horário é obrigatório'),
+      turno: Yup
+        .string()
+        .required(' Turno é obrigatório'),
+      descricao: Yup
+        .string()
+    }),
+    onSubmit: async (values, helpers) => {
+      try {
         
-        const resposta = await api.getInformation(ctx, endPoint)
-    
-        return resposta
+        const res = await criaRefeicao(values)
+
+        setResposta(res.body.msg)
+        setOpenMensage(true)
+        // setOpen(false)
+
+        setTimeout(function() {
+          location.reload()
+        }, 2000)
+
+
+        console.log(res.body)
+
+      } catch (err) {
+        helpers.setStatus({ success: false });
+        helpers.setErrors({ submit: err.message });
+        helpers.setSubmitting(false);
+      }
     }
-
-    function formataData (data) {
-      const date = new Date(data)
-      let dia = null
-
-      if(date.getDate()<10)
-        dia = `0${date.getDate()}`
-      else
-        dia = date.getDate()
-
-      const dataDeCriacao = `${dia}/0${date.getMonth()+1}/${date.getFullYear()}`
-      
-      return dataDeCriacao
-    }
-
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [page, setPage] = useState(0);
-    const [medida, setMedida] = useState([])
-    const [planoAlimentar, setPlanoAlimentar] = useState([])
-    const [refeicoes, setRefeicoes] = useState([])
-
-    useEffect( async (ctx) => {
-        const usuarioAutenticado = await authService.getSession(ctx)
-
-        // Busca informações do plano alimentar
-        const endPointPlanoAlimentar = `paciente/consulta/${consultaID}/plano/${planoAlimentarID}`
-        const getPlanoAlimentar = await buscaInformacoes(ctx, endPointPlanoAlimentar)
-        setPlanoAlimentar(getPlanoAlimentar.body)
-
-        // Busca todas refeicoes
-        const endPointRefeicoes = `${usuarioAutenticado.body.id}/paciente/consulta/plano/${planoAlimentarID}/refeicao`
-        const getRefeicoes = await buscaInformacoes(ctx, endPointRefeicoes)
-        setRefeicoes(getRefeicoes.body)
-console.log(refeicoes)
-
-    }, [])
-
-    const handleChangePage = (event, newPage) => {
-      setPage(newPage);
-    };
-  
-    const handleChangeRowsPerPage = (event) => {
-      setPage(0);
-      setRowsPerPage(parseInt(event.target.value, 10));
-    };
+  });
 
 
   return (
@@ -119,91 +210,221 @@ console.log(refeicoes)
         <Grid item xs={12} sm={12}>
           <Card>
             <CardHeader title='Informações do plano alimentar' />
+            <Divider />
+            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2} sx={{ marginTop: '25px' }}>
               <Grid item xs={12} sm={6}>
-                  <CardContent>
-                      <Typography variant='body1'>
-                          {planoAlimentar?.nome}
-                      </Typography>
-                  </CardContent>
-              </Grid>
-              <Grid item xs={12} sm={6} >
                 <CardContent>
-                    <Typography variant='body1'>
-                        {planoAlimentar?.teto_kcal} kcal
-                    </Typography>
+                  <Typography variant='body1'>
+                    {planoAlimentar?.nome}
+                  </Typography>
                 </CardContent>
               </Grid>
               <Grid item xs={12} sm={6} >
                 <CardContent>
-                    <Typography variant='body1'>
-                        {planoAlimentar?.createdAt}
-                    </Typography>
+                  <Typography variant='body1'>
+                    {planoAlimentar?.teto_kcal} kcal
+                  </Typography>
                 </CardContent>
               </Grid>
+              <Grid item xs={12} sm={6} >
+                <CardContent>
+                  <Typography variant='body1'>
+                    {planoAlimentar?.createdAt}
+                  </Typography>
+                </CardContent>
+              </Grid>
+            </Stack>
             <CardActions className='card-action-dense' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button onClick={() => {window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese`)}}>Editar</Button>
+              <Button onClick={() => { window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese`) }}>Editar</Button>
             </CardActions>
           </Card>
         </Grid>
       </Grid>
 
-      <Card sx={{marginTop:10}}>
-        <Container>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5} sx={{marginTop: '25px'}}>
+      <>
+        <Container sx={{mt:12}}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5} sx={{ marginTop: '25px' }}>
             <Typography variant="h5" gutterBottom>
               Refeições
             </Typography>
-            <Button variant="contained" onClick={() => console.log('oi')}>
-              <ScaleBathroom sx={{marginRight: 1, fontSize: '1.375rem', marginBottom: 1}}/>
+            <Button variant="contained" onClick={handleClickOpen}>
+              <ScaleBathroom sx={{ marginRight: 1, fontSize: '1.375rem', marginBottom: 1 }} />
               Adicionar
             </Button>
           </Stack>
 
-          {refeicoes?.length > 0? (
+          {refeicoes?.length > 0 ? (
             <>
               {refeicoes?.map(row => (
-                  <Grid container spacing={6}>
+                <Grid container spacing={6} key={row?.id}>
                   <Grid item xs={12} sm={12}>
-                    <Card>
+                    <Card sx={{marginTop: 5}}>
                       <CardHeader title={row?.nome} />
-                        <Grid item xs={12} sm={12}>
-                            <CardContent>
-                                <Typography variant='body1'>
-                                    Turno: {row?.turno}
-                                </Typography>
-                            </CardContent>
-                        </Grid>
-                        <Grid item xs={12} sm={6} >
+                      <Divider />
+                      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+                        <Grid item xs={12} sm={3}>
                           <CardContent>
-                              <Typography variant='body1'>
-                                  Horário: {row?.horario}
-                              </Typography>
+                            <Typography variant='body1'>
+                              Turno: {row?.turno}
+                            </Typography>
                           </CardContent>
                         </Grid>
-                        <Grid item xs={12} sm={6} >
+                        <Grid item xs={12} sm={9} >
                           <CardContent>
-                              <Typography variant='body1'>
-                                  Descrição: {row?.descricao}
-                              </Typography>
+                            <Typography variant='body1'>
+                              Horário: {row?.horario}
+                            </Typography>
                           </CardContent>
                         </Grid>
+                      </Stack>
+                      <Grid item xs={12} sm={6} >
+                        <CardContent>
+                          <Typography variant='body1'>
+                            Descrição: {row?.descricao}
+                          </Typography>
+                        </CardContent>
+                      </Grid>
+                      <Divider />
                       <CardActions className='card-action-dense' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                          <Button onClick={() => {window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese`)}}>Adicionar alimentos</Button>
+                        <Button onClick={() => { window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese`) }}>Adicionar alimentos</Button>
                       </CardActions>
                     </Card>
                   </Grid>
                 </Grid>
               ))}
-            
+
             </>
-            ):(
-              <Typography variant="subtitle1" gutterBottom sx={{display: 'flex', justifyContent: 'center', margin:10}}>
-                <CloseBoxMultiple sx={{marginRight: 2, fontSize: '1.375rem',}}/>
-                Nenhuma refeição cadastrada
-              </Typography>
-            )}
+          ) : (
+            <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
+              <CloseBoxMultiple sx={{ marginRight: 2, fontSize: '1.375rem', }} />
+              Nenhuma refeição cadastrada
+            </Typography>
+          )}
         </Container>
-      </Card>
+      </>
+
+      <div>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Refeição</DialogTitle>
+          <DialogContent dividers>
+            <form noValidate autoComplete='off' onSubmit={formikRefeicoes.handleSubmit}>
+              <Grid container spacing={7}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    error={!!(formikRefeicoes.touched.nome && formikRefeicoes.errors.nome)}
+                    autoFocus
+                    fullWidth
+                    helperText={formikRefeicoes.touched.nome && formikRefeicoes.errors.nome}
+                    id='nome'
+                    label='Nome'
+                    placeholder='Nome'
+                    name='nome'
+                    type="text"
+                    value={formikRefeicoes.values.nome}
+                    onChange={formikRefeicoes.handleChange}
+                    sx={{ marginBottom: 4 }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <FormTextbox />
+                        </InputAdornment>
+                      )
+                    }} />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    error={!!(formikRefeicoes.touched.horario && formikRefeicoes.errors.horario)}
+                    autoFocus
+                    fullWidth
+                    helperText={formikRefeicoes.touched.horario && formikRefeicoes.errors.horario}
+                    id='horario'
+                    label='Horário para realização da refeição'
+                    placeholder='08:00'
+                    name='horario'
+                    type="time"
+                    value={formikRefeicoes.values.horario}
+                    onChange={formikRefeicoes.handleChange}
+                    sx={{ marginBottom: 4 }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <ClockTimeEightOutline />
+                        </InputAdornment>
+                      )
+                    }} />
+                </Grid>
+
+                <Grid item xs={12} sm={12}>
+                  <TextField
+                    error={!!(formikRefeicoes.touched.turno && formikRefeicoes.errors.turno)}
+                    autoFocus
+                    fullWidth
+                    helperText={formikRefeicoes.touched.turno && formikRefeicoes.errors.turno}
+                    id="turno"
+                    name="turno"
+                    type="string"
+                    label="Turno"
+                    placeholder="Ex: manhã"
+                    value={formikRefeicoes.values.turno}
+                    onChange={formikRefeicoes.handleChange}
+                    sx={{ marginBottom: 4 }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CardTextOutline />
+                        </InputAdornment>
+                      )
+                    }} />
+                </Grid>
+
+                <Grid item xs={12} sm={12}>
+                  <TextField
+                    error={!!(formikRefeicoes.touched.descricao && formikRefeicoes.errors.descricao)}
+                    autoFocus
+                    fullWidth
+                    helperText={formikRefeicoes.touched.descricao && formikRefeicoes.errors.descricao}
+                    id="descricao"
+                    name="descricao"
+                    type="string"
+                    label="Descricao"
+                    placeholder="Descrição"
+                    value={formikRefeicoes.values.descricao}
+                    onChange={formikRefeicoes.handleChange}
+                    sx={{ marginBottom: 4 }} 
+                    multiline
+                    rows={2}
+                    />
+                </Grid>
+
+                {formikRefeicoes.errors.submit && (
+                  <Snackbar open={openMensage} autoHideDuration={12000000} onClose={handleCloseMensage}>
+                    <Alert onClose={handleCloseMensage} severity="error" sx={{ width: '100%' }}>
+                      {formikRefeicoes.errors.submit}
+                    </Alert>
+                  </Snackbar>
+                )}
+
+                <Snackbar open={openMensage} autoHideDuration={8000} onClose={handleCloseMensage} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+                  <Alert onClose={handleCloseMensage} >
+                    {resposta}
+                  </Alert>
+                </Snackbar>
+
+                <Divider />
+
+                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <DialogActions>
+                    <Button variant='contained' type='submit'>
+                      Salvar
+                    </Button>
+                  </DialogActions>
+                </Grid>
+              </Grid>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
     </>
   )
 }

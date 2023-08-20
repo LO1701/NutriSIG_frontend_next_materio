@@ -32,7 +32,7 @@ import {
 } from '@mui/material';
 import AccountPlusOutline from 'mdi-material-ui/AccountPlusOutline'
 import Nutrition from 'mdi-material-ui/Nutrition'
-import ScaleBathroom from 'mdi-material-ui/ScaleBathroom' 
+import ScaleBathroom from 'mdi-material-ui/ScaleBathroom'
 import PencilBoxMultiple from 'mdi-material-ui/PencilBoxMultiple'
 import Grid from '@mui/material/Grid'
 import Divider from '@mui/material/Divider'
@@ -52,81 +52,81 @@ import Link from 'next/link';
 
 const Perfil = () => {
 
-    const router = useRouter()
+  const router = useRouter()
 
-    const pacienteID = router.query.pacienteID
-    const consultaID = router.query.consultaID
+  const pacienteID = router.query.pacienteID
+  const consultaID = router.query.consultaID
 
-    const buscaInformacoes = async (ctx, endPoint) => {
-    
-      const resposta = await api.getInformation(ctx, endPoint)
-    
-      return resposta
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [page, setPage] = useState(0);
+  const [medida, setMedida] = useState([])
+  const [exame, setExame] = useState([])
+  const [anamnese, setAnamnese] = useState([])
+  const [planoAlimentar, setPlanoAlimentar] = useState([])
+
+  const buscaInformacoes = async (ctx, endPoint) => {
+
+    const resposta = await api.getInformation(ctx, endPoint)
+
+    return resposta
+  }
+
+  function formataData(data) {
+    const date = new Date(data)
+    let dia = null
+
+    if (date.getDate() < 10)
+      dia = `0${date.getDate()}`
+    else
+      dia = date.getDate()
+
+    const dataDeCriacao = `${dia}/0${date.getMonth() + 1}/${date.getFullYear()}`
+
+    return dataDeCriacao
+  }
+
+  useEffect(async (ctx) => {
+    // Busca todas as Medidas antropométricas
+    const endPointMedidas = `paciente/consulta/${consultaID}/medida`
+    const getMedidas = await buscaInformacoes(ctx, endPointMedidas)
+
+    getMedidas.body.forEach((element, index) => {
+      const date = formataData(element.createdAt)
+      getMedidas.body[index].dataDeCriacao = date
+    })
+    setMedida(getMedidas.body)
+
+    // Busca todos os Exames laboratoriais
+    const endPointExames = `paciente/consulta/${consultaID}/exame`
+    const getExames = await buscaInformacoes(ctx, endPointExames)
+    setExame(getExames.body)
+
+    // Busca todas anamneses
+    const endPointAnamnese = `paciente/consulta/${consultaID}/anamnese`
+    const getAnamnese = await buscaInformacoes(ctx, endPointAnamnese)
+
+    if (getAnamnese.body.length > 0) {
+      const data = formataData(getAnamnese.body[0]?.createdAt)
+      getAnamnese.body.push({ dataDeCriacao: data })
+      setAnamnese(getAnamnese.body)
     }
 
-    function formataData (data) {
-      const date = new Date(data)
-      let dia = null
-
-      if(date.getDate()<10)
-        dia = `0${date.getDate()}`
-      else
-        dia = date.getDate()
-
-      const dataDeCriacao = `${dia}/0${date.getMonth()+1}/${date.getFullYear()}`
-      
-      return dataDeCriacao
-    }
-
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [page, setPage] = useState(0);
-    const [medida, setMedida] = useState([])
-    const [exame, setExame] = useState([])
-    const [anamnese, setAnamnese] = useState([])
-    const [planoAlimentar, setPlanoAlimentar] = useState([])
-
-    useEffect( async (ctx) => {
-      // Busca todas as Medidas antropométricas
-      const endPointMedidas = `paciente/consulta/${consultaID}/medida`
-      const getMedidas = await buscaInformacoes(ctx, endPointMedidas)
-    
-      getMedidas.body.forEach((element, index) => {
-        const date = formataData(element.createdAt)
-        getMedidas.body[index].dataDeCriacao = date
-      })
-      setMedida(getMedidas.body)
-
-      // Busca todos os Exames laboratoriais
-      const endPointExames = `paciente/consulta/${consultaID}/exame`
-      const getExames = await buscaInformacoes(ctx, endPointExames)
-      setExame(getExames.body)
-
-      // Busca todas anamneses
-      const endPointAnamnese = `paciente/consulta/${consultaID}/anamnese`
-      const getAnamnese = await buscaInformacoes(ctx, endPointAnamnese)
-
-      if(getAnamnese.body.length > 0){
-        const data = formataData(getAnamnese.body[0]?.createdAt)
-        getAnamnese.body.push({dataDeCriacao: data})
-        setAnamnese(getAnamnese.body)
-      }
-
-      // Busca todos planos alimentares
-      const endPointPlanoAlimentar = `paciente/${pacienteID}/consulta/${consultaID}/plano`
-      const getPlanosAlimentares = await buscaInformacoes(ctx, endPointPlanoAlimentar)
-      setPlanoAlimentar(getPlanosAlimentares.body)
+    // Busca todos planos alimentares
+    const endPointPlanoAlimentar = `paciente/${pacienteID}/consulta/${consultaID}/plano`
+    const getPlanosAlimentares = await buscaInformacoes(ctx, endPointPlanoAlimentar)
+    setPlanoAlimentar(getPlanosAlimentares.body)
 
 
-    }, [])
+  }, [])
 
-    const handleChangePage = (event, newPage) => {
-      setPage(newPage);
-    };
-  
-    const handleChangeRowsPerPage = (event) => {
-      setPage(0);
-      setRowsPerPage(parseInt(event.target.value, 10));
-    };
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setPage(0);
+    setRowsPerPage(parseInt(event.target.value, 10));
+  };
 
 
   return (
@@ -136,7 +136,7 @@ const Perfil = () => {
           <Card>
             <CardHeader title='Anamnese' />
             <CardContent>
-            {anamnese?.length > 0? (
+              {anamnese?.length > 0 ? (
                 <>
                   <Typography variant='body2' sx={{ marginBottom: 3.25 }}>
                     A anamnese do paciente foi cadastrada no dia {anamnese[13]?.dataDeCriacao}. Abaixo
@@ -160,32 +160,32 @@ const Perfil = () => {
                   <Typography variant='body1'>
                     {anamnese[11]?.questao}
                   </Typography>
-                  <Typography variant='body2'ml={5}>
+                  <Typography variant='body2' ml={5}>
                     {anamnese[11]?.resposta}
                   </Typography>
                 </>
-                ):(
-                  <Typography variant="subtitle1" gutterBottom sx={{display: 'flex', justifyContent: 'center', margin:10}}>
-                    <CloseBoxMultiple sx={{marginRight: 2, fontSize: '1.375rem',}}/>
-                    Nenhuma anamnese cadastrada
-                  </Typography>
+              ) : (
+                <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', justifyContent: 'center', margin: 10 }}>
+                  <CloseBoxMultiple sx={{ marginRight: 2, fontSize: '1.375rem', }} />
+                  Nenhuma anamnese cadastrada
+                </Typography>
               )}
             </CardContent>
             <CardActions className='card-action-dense' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              {anamnese?.length > 0?(
-                <Button onClick={() => {window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese/${anamnese[0]?.id}`)}}>Editar</Button>
-              ):(
-                <Button onClick={() => {window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese`)}}>Adicionar</Button>
+              {anamnese?.length > 0 ? (
+                <Button onClick={() => { window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese/${anamnese[0]?.id}`) }}>Editar</Button>
+              ) : (
+                <Button onClick={() => { window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese`) }}>Adicionar</Button>
               )}
             </CardActions>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6}>
           <Card>
             <CardHeader title='Exames Laboratoriais' />
             <CardContent>
-            {exame?.length > 0? (
+              {exame?.length > 0 ? (
                 <>
                   <Typography variant='body2' sx={{ marginBottom: 3.25 }}>
                     Computers have become ubiquitous in almost every facet of our lives. At work, desk jockeys spend hours in
@@ -197,74 +197,74 @@ const Perfil = () => {
                     of some of the best systems available.
                   </Typography>
                 </>
-                ):(
-                  <Typography variant="subtitle1" gutterBottom sx={{display: 'flex', justifyContent: 'center', margin:10}}>
-                    <CloseBoxMultiple sx={{marginRight: 2, fontSize: '1.375rem',}}/>
-                    Nenhum exame laboratorial cadastrado
-                  </Typography>
+              ) : (
+                <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', justifyContent: 'center', margin: 10 }}>
+                  <CloseBoxMultiple sx={{ marginRight: 2, fontSize: '1.375rem', }} />
+                  Nenhum exame laboratorial cadastrado
+                </Typography>
               )}
             </CardContent>
             <CardActions className='card- action-dense' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button>{exame?.length > 0? 'Editar': 'Adicionar'}</Button>
+              <Button>{exame?.length > 0 ? 'Editar' : 'Adicionar'}</Button>
             </CardActions>
           </Card>
         </Grid>
       </Grid>
 
-      <Card sx={{marginTop:10}}>
+      <Card sx={{ marginTop: 10 }}>
         <Container>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5} sx={{marginTop: '25px'}}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5} sx={{ marginTop: '25px' }}>
             <Typography variant="h5" gutterBottom>
               Medidas Antropométricas
             </Typography>
             <Button variant="contained" onClick={() => console.log('oi')}>
-              <ScaleBathroom sx={{marginRight: 1, fontSize: '1.375rem', marginBottom: 1}}/>
+              <ScaleBathroom sx={{ marginRight: 1, fontSize: '1.375rem', marginBottom: 1 }} />
               Adicionar
             </Button>
           </Stack>
 
-          {medida?.length > 0? (
+          {medida?.length > 0 ? (
             <>
               <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label='simple table'>
                   <TableHead>
-                      <TableRow>
-                          <TableCell>Data de cadastro</TableCell>
-                          <TableCell>Classificação</TableCell>
-                          <TableCell>Peso</TableCell>
-                          <TableCell>IMC</TableCell>
-                          <TableCell sx={{width: 5}}>Editar</TableCell>
-                      </TableRow>
+                    <TableRow>
+                      <TableCell>Data de cadastro</TableCell>
+                      <TableCell>Classificação</TableCell>
+                      <TableCell>Peso</TableCell>
+                      <TableCell>IMC</TableCell>
+                      <TableCell sx={{ width: 5 }}>Editar</TableCell>
+                    </TableRow>
                   </TableHead>
                   <TableBody>
-                      {medida?.map(row => (
-                          <TableRow
-                              key={row.id}
-                              sx={{
-                                  '&:last-of-type td, &:last-of-type th': {
-                                  border: 0
-                                  }
-                              }}
-                          >
-                              <TableCell component='th' scope='row'>
-                                  {row.dataDeCriacao}
-                              </TableCell>
-                              <TableCell component='th' scope='row'>
-                                  {row.classificacao_imc}
-                              </TableCell>
-                              <TableCell component='th' scope='row'>
-                                  {row.peso_atual} kg
-                              </TableCell>
-                              <TableCell component='th' scope='row'>
-                                  {row.imc_atual}
-                              </TableCell>
-                              <TableCell align="center">
-                                  <IconButton size='small' onClick={() => {router.push(`${paciente?.id}/consulta/${row.id}/perfil`)}}>
-                                      <PencilBoxMultiple />
-                                  </IconButton>
-                              </TableCell>
-                          </TableRow>
-                      ))}
+                    {medida?.map(row => (
+                      <TableRow
+                        key={row.id}
+                        sx={{
+                          '&:last-of-type td, &:last-of-type th': {
+                            border: 0
+                          }
+                        }}
+                      >
+                        <TableCell component='th' scope='row'>
+                          {row.dataDeCriacao}
+                        </TableCell>
+                        <TableCell component='th' scope='row'>
+                          {row.classificacao_imc}
+                        </TableCell>
+                        <TableCell component='th' scope='row'>
+                          {row.peso_atual} kg
+                        </TableCell>
+                        <TableCell component='th' scope='row'>
+                          {row.imc_atual}
+                        </TableCell>
+                        <TableCell align="center">
+                          <IconButton size='small' onClick={() => { router.push(`${paciente?.id}/consulta/${row.id}/perfil`) }}>
+                            <PencilBoxMultiple />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -279,67 +279,67 @@ const Perfil = () => {
                 onRowsPerPageChange={handleChangeRowsPerPage}
               />
             </>
-            ):(
-              <Typography variant="subtitle1" gutterBottom sx={{display: 'flex', justifyContent: 'center', margin:10}}>
-                <CloseBoxMultiple sx={{marginRight: 2, fontSize: '1.375rem',}}/>
-                Nenhuma medida antropométrica cadastrada
-              </Typography>
-            )}
+          ) : (
+            <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', justifyContent: 'center', margin: 10 }}>
+              <CloseBoxMultiple sx={{ marginRight: 2, fontSize: '1.375rem', }} />
+              Nenhuma medida antropométrica cadastrada
+            </Typography>
+          )}
         </Container>
       </Card>
 
-      <Card sx={{marginTop:10}}>
+      <Card sx={{ marginTop: 10 }}>
         <Container>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5} sx={{marginTop: '25px'}}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5} sx={{ marginTop: '25px' }}>
             <Typography variant="h5" gutterBottom>
               Plano Alimentar
             </Typography>
             <Link href={`/pacientes/${pacienteID}/consulta/${consultaID}/planoAlimentar`} passHref legacyBehavior>
               <Button variant="contained">
-                <Nutrition sx={{marginRight: 1, fontSize: '1.375rem', marginBottom: 1}}/>
+                <Nutrition sx={{ marginRight: 1, fontSize: '1.375rem', marginBottom: 1 }} />
                 Adicionar
               </Button>
             </Link>
           </Stack>
 
-          {planoAlimentar?.length > 0? (
+          {planoAlimentar?.length > 0 ? (
             <>
               <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label='simple table'>
                   <TableHead>
-                      <TableRow>
-                          <TableCell>Nome</TableCell>
-                          <TableCell>Data de validade</TableCell>
-                          <TableCell>Máximo kcal </TableCell>
-                          <TableCell sx={{width: 5}}>Editar</TableCell>
-                      </TableRow>
+                    <TableRow>
+                      <TableCell>Nome</TableCell>
+                      <TableCell>Data de validade</TableCell>
+                      <TableCell>Máximo kcal </TableCell>
+                      <TableCell sx={{ width: 5 }}>Editar</TableCell>
+                    </TableRow>
                   </TableHead>
                   <TableBody>
-                      {planoAlimentar?.map(row => (
-                          <TableRow
-                              key={row.id}
-                              sx={{
-                                  '&:last-of-type td, &:last-of-type th': {
-                                  border: 0
-                                  }
-                              }}
-                          >
-                              <TableCell component='th' scope='row'>
-                                  {row.nome}
-                              </TableCell>
-                              <TableCell component='th' scope='row'>
-                                  {row.validade}
-                              </TableCell>
-                              <TableCell component='th' scope='row'>
-                                  {row.teto_kcal}
-                              </TableCell>
-                              <TableCell align="center">
-                                  <IconButton size='small' onClick={() => {window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/planoAlimentar/${row.id}`)}}>
-                                      <PencilBoxMultiple />
-                                  </IconButton>
-                              </TableCell>
-                          </TableRow>
-                      ))}
+                    {planoAlimentar?.map(row => (
+                      <TableRow
+                        key={row.id}
+                        sx={{
+                          '&:last-of-type td, &:last-of-type th': {
+                            border: 0
+                          }
+                        }}
+                      >
+                        <TableCell component='th' scope='row'>
+                          {row.nome}
+                        </TableCell>
+                        <TableCell component='th' scope='row'>
+                          {row.validade}
+                        </TableCell>
+                        <TableCell component='th' scope='row'>
+                          {row.teto_kcal}
+                        </TableCell>
+                        <TableCell align="center">
+                          <IconButton size='small' onClick={() => { window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/planoAlimentar/${row.id}`) }}>
+                            <PencilBoxMultiple />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -354,16 +354,16 @@ const Perfil = () => {
                 onRowsPerPageChange={handleChangeRowsPerPage}
               />
             </>
-            ):(
-              <Typography variant="subtitle1" gutterBottom sx={{display: 'flex', justifyContent: 'center', margin:10}}>
-                <CloseBoxMultiple sx={{marginRight: 2, fontSize: '1.375rem',}}/>
-                Nenhum plano alimentar cadastrado
-              </Typography>
-            )}
+          ) : (
+            <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', justifyContent: 'center', margin: 10 }}>
+              <CloseBoxMultiple sx={{ marginRight: 2, fontSize: '1.375rem', }} />
+              Nenhum plano alimentar cadastrado
+            </Typography>
+          )}
         </Container>
       </Card>
 
- 
+
     </>
   )
 }

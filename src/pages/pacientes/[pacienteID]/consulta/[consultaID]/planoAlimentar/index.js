@@ -20,11 +20,6 @@ import Home from 'mdi-material-ui/Home'
 import CardTextOutline from 'mdi-material-ui/CardTextOutline'
 import FormTextbox from 'mdi-material-ui/FormTextbox'
 
-// ** Demo Tabs Imports
-import TabInfo from '../../../../../../views/account-settings/TabInfo'
-import TabAccount from '../../../../../../views/account-settings/TabAccount'
-import TabSecurity from '../../../../../../views/account-settings/TabSecurity'
-
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
 import { tokenService } from '../../../../../../services/auth/tokenService'
@@ -54,12 +49,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import 'dayjs/locale/en-gb';
 
 // ** import Select
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
 import { useRouter } from 'next/router'
-
 
 
 // ** Styles
@@ -88,78 +78,78 @@ const Alert = forwardRef(function Alert(props, ref) {
 
 const NovoPlanoAlimentar = () => {
 
-    const auth = useAuth()
-    const router = useRouter()
+  const auth = useAuth()
+  const router = useRouter()
 
-    const pacienteID = router.query.pacienteID
-    const consultaID = router.query.consultaID
+  const pacienteID = router.query.pacienteID
+  const consultaID = router.query.consultaID
 
-    // ** State
-    const [value, setValue] = useState('account')
-    const [open, setOpen] = useState(false);
-    const [resposta, setResposta] = useState();
-    const [id, setID] = useState();
+  // ** State
+  const [value, setValue] = useState('account')
+  const [open, setOpen] = useState(false)
+  const [resposta, setResposta] = useState()
+  const [id, setID] = useState();
 
-    const handleChange = (event, newValue) => {
-      setValue(newValue)
+  const handleChange = (event, newValue) => {
+    setValue(newValue)
+  }
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
     }
 
-    const handleClose = (event, reason) => {
-      if (reason === 'clickaway') {
-        return;
+    setOpen(false);
+  };
+
+  const criaPlanoAlimentar = async (values) => {
+    const endPoint = `paciente/${pacienteID}/consulta/${consultaID}/plano`
+  
+    const resposta = await api.postInformation(endPoint, values)
+  
+    return resposta
+  }
+
+  // Formik
+  const formik = useFormik({
+    initialValues: {
+        nome: '',
+        teto_kcal: '',
+        validade: '',
+        submit: null
+    },
+    enableReinitialize: true,
+    validationSchema: Yup.object({
+      nome: Yup
+      .string()
+      .max(255)
+      .required('Nome é obrigatório'),
+      teto_kcal: Yup
+      .number()
+      .required('Máximo Kcal é obrigatório'),
+      validade: Yup
+      .string()
+      .required('Próxima consulta é obrigatório'),
+    }),
+    onSubmit: async (values, helpers) => {
+      try {
+        const res = await criaPlanoAlimentar(values)
+
+        setResposta(res.body.msg)
+        setID(res.body.id)
+        setOpen(true)
+
+        setTimeout(function() {
+          window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/planoAlimentar/${res.body.id}`)
+        }, 2000)
+
+      } catch (err) {
+        helpers.setStatus({ success: false });
+        helpers.setErrors({ submit: err.message });
+        helpers.setSubmitting(false);
       }
-
-      setOpen(false);
-    };
-
-    const criaPlanoAlimentar = async (values) => {
-      const endPoint = `paciente/${pacienteID}/consulta/${consultaID}/plano`
-    
-      const resposta = await api.postInformation(endPoint, values)
-    
-      return resposta
     }
-
-    // Formik
-    const formik = useFormik({
-      initialValues: {
-          nome: '',
-          teto_kcal: '',
-          validade: '',
-          submit: null
-      },
-      enableReinitialize: true,
-      validationSchema: Yup.object({
-        nome: Yup
-        .string()
-        .max(255)
-        .required('Nome é obrigatório'),
-        teto_kcal: Yup
-        .number()
-        .required('Máximo Kcal é obrigatório'),
-        validade: Yup
-        .string()
-        .required('Próxima consulta é obrigatório'),
-      }),
-      onSubmit: async (values, helpers) => {
-        try {
-          const res = await criaPlanoAlimentar(values)
-
-          setResposta(res.body.msg)
-          setID(res.body.id)
-          setOpen(true)
-
-          setTimeout(function() {
-            window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/planoAlimentar/${res.body.id}`)
-          }, 2000)
- 
-        } catch (err) {
-          helpers.setStatus({ success: false });
-          helpers.setErrors({ submit: err.message });
-          helpers.setSubmitting(false);
-        }
-      }
-    });
+  });
 
   return (
     <Card>
