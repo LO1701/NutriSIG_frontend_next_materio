@@ -116,7 +116,6 @@ const Perfil = () => {
     const getPlanosAlimentares = await buscaInformacoes(ctx, endPointPlanoAlimentar)
     setPlanoAlimentar(getPlanosAlimentares.body)
 
-
   }, [])
 
   const handleChangePage = (event, newPage) => {

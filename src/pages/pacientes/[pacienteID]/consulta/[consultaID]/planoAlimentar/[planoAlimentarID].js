@@ -33,6 +33,7 @@ import Snackbar from '@mui/material/Snackbar'
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import MuiAlert from '@mui/material/Alert';
+import Autocomplete from '@mui/material/Autocomplete';
 
 // ** Api Import
 import { api } from '../../../../../../services/api/api'
@@ -48,7 +49,7 @@ import { authService } from '../../../../../../services/auth/authService';
 // ** Foormik and yup Imports
 import { useFormik } from 'formik'
 import * as Yup from 'yup';
-import { FormTextbox } from 'mdi-material-ui';
+import { Box, FormTextbox } from 'mdi-material-ui';
 
 
 const PlanoID = () => {
@@ -61,12 +62,26 @@ const PlanoID = () => {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [page, setPage] = useState(0);
-  const [medida, setMedida] = useState([])
   const [planoAlimentar, setPlanoAlimentar] = useState([])
   const [refeicoes, setRefeicoes] = useState([])
   const [open, setOpen] = useState(false)
   const [openMensage, setOpenMensage] = useState(false)
   const [resposta, setResposta] = useState()
+
+  // States de Alimentos
+  const [openAlimento, setOpenAlimento] = useState(false)
+  const [openMensageAlimento, setOpenMensageAlimento] = useState(false)
+  const [respostaAlimento, setRespostaAlimento] = useState()
+  const [idRefeicao, setIdRefeicao] = useState()
+
+  // State Alimento select
+  const [alimento, setAlimento] = useState([])
+  const [idAlimento, setIdAlimento] = useState()
+
+  // States dos TestFields
+  const [alimentoSelecionado, setAlimentoSelecionado] = useState()
+  const [gramas, setGramas] = useState()
+  const [observacoes, setObservacoes] = useState()
 
 
   // Notificação
@@ -85,6 +100,15 @@ const PlanoID = () => {
     const usuarioAutenticado = await authService.getSession(ctx)
 
     const endPoint = `${usuarioAutenticado.body.id}/paciente/consulta/plano/${planoAlimentarID}/refeicao`
+
+    const resposta = await api.postInformation(endPoint, valores)
+
+    return resposta
+  }
+
+  const criaAlimento = async (valores, ctx) => {
+
+    const endPoint = `plano/${planoAlimentarID}/refeicao/${idRefeicao}/alimento/${idAlimento}/refeicaoAlimento`
 
     const resposta = await api.postInformation(endPoint, valores)
 
@@ -111,14 +135,18 @@ const PlanoID = () => {
     // Busca informações do plano alimentar
     const endPointPlanoAlimentar = `paciente/consulta/${consultaID}/plano/${planoAlimentarID}`
     const getPlanoAlimentar = await buscaInformacoes(ctx, endPointPlanoAlimentar)
+    getPlanoAlimentar.body.dataFormatada = formataData(getPlanoAlimentar.body.createdAt)
     setPlanoAlimentar(getPlanoAlimentar.body)
 
     // Busca todas refeicoes
     const endPointRefeicoes = `${usuarioAutenticado.body.id}/paciente/consulta/plano/${planoAlimentarID}/refeicao`
     const getRefeicoes = await buscaInformacoes(ctx, endPointRefeicoes)
     setRefeicoes(getRefeicoes.body)
-    console.log(refeicoes)
 
+    // Busca todos os alimentos do select
+    const endPointAlimentos = `${usuarioAutenticado.body.id}/alimento`
+    const getAlimentos = await buscaInformacoes(ctx, endPointAlimentos)
+    setAlimento(getAlimentos.body)
   }, [])
 
   const handleChangePage = (event, newPage) => {
@@ -145,6 +173,27 @@ const PlanoID = () => {
 
     setOpenMensage(false);
   };
+
+  // Functions alimentos
+
+  const handleClickOpenAlimento = (idRefeicao) => {
+    setOpenAlimento(true);
+    setIdRefeicao(idRefeicao)
+  };
+
+  const handleCloseAlimento = () => {
+    setOpenAlimento(false);
+  };
+
+  const handleCloseMensageAlimento = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenMensageAlimento(false);
+  };
+
+  
 
   const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -203,6 +252,29 @@ const PlanoID = () => {
     }
   });
 
+  
+  async function onSubmitAlimentos (event) {
+
+    event.preventDefault()
+
+    const valores = {
+      observacoes: observacoes,
+      gramas: gramas
+    }
+    console.log(valores)
+    console.log(alimentoSelecionado)
+    // const res = await criaAlimento(values)
+
+    // setRespostaAlimento(res.body.msg)
+    // setOpenMensageAlimento(true)
+
+    // setTimeout(function() {
+    //   location.reload()
+    // }, 2000)
+
+
+    // console.log(res.body)
+  }
 
   return (
     <>
@@ -215,21 +287,21 @@ const PlanoID = () => {
               <Grid item xs={12} sm={6}>
                 <CardContent>
                   <Typography variant='body1'>
-                    {planoAlimentar?.nome}
+                    Nome: {planoAlimentar?.nome}
                   </Typography>
                 </CardContent>
               </Grid>
               <Grid item xs={12} sm={6} >
                 <CardContent>
                   <Typography variant='body1'>
-                    {planoAlimentar?.teto_kcal} kcal
+                  Máximo Kcal: {planoAlimentar?.teto_kcal} kcal
                   </Typography>
                 </CardContent>
               </Grid>
               <Grid item xs={12} sm={6} >
                 <CardContent>
                   <Typography variant='body1'>
-                    {planoAlimentar?.createdAt}
+                    Data de criação: {planoAlimentar?.dataFormatada}
                   </Typography>
                 </CardContent>
               </Grid>
@@ -286,7 +358,7 @@ const PlanoID = () => {
                       </Grid>
                       <Divider />
                       <CardActions className='card-action-dense' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <Button onClick={() => { window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese`) }}>Adicionar alimentos</Button>
+                        <Button onClick={() => handleClickOpenAlimento(row?.id)}>Adicionar alimentos</Button>
                       </CardActions>
                     </Card>
                   </Grid>
@@ -408,6 +480,124 @@ const PlanoID = () => {
                 <Snackbar open={openMensage} autoHideDuration={8000} onClose={handleCloseMensage} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
                   <Alert onClose={handleCloseMensage} >
                     {resposta}
+                  </Alert>
+                </Snackbar>
+
+                <Divider />
+
+                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <DialogActions>
+                    <Button variant='contained' type='submit'>
+                      Salvar
+                    </Button>
+                  </DialogActions>
+                </Grid>
+              </Grid>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+{/* Modal dos alimentos */}
+
+      <div>
+        <Dialog open={openAlimento} onClose={handleCloseAlimento}>
+          <DialogTitle>Alimento</DialogTitle>
+          <DialogContent dividers>
+            <form noValidate autoComplete='off' onSubmit={onSubmitAlimentos}>
+              <Grid container spacing={7}>
+                <Grid item xs={12} sm={6}>
+                {/* <Autocomplete
+                    freeSolo
+                    value={alimentoSelecionado}
+                    onChange={(event, newValue) => {
+                      setAlimentoSelecionado(newValue);
+                    }}
+                    id="alimento"
+                    disableClearable
+                    key={alimento?.map((option) => option?.id)}
+                    options={alimento?.map((option) => option?.nome)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Alimentos"
+                        InputProps={{
+                          ...params.InputProps,
+                          type: 'search',
+                        }}
+                      />
+                    )}
+                  /> */}
+                  <Autocomplete
+                    id="alimento"
+                    // value={alimentoSelecionado}
+                    onChange={(event, newValue) => {
+                      setAlimentoSelecionado(newValue);
+                    }}
+                    options={alimento}
+                    sx={{ width: 300 }}
+                    getOptionLabel={(alimento) => alimento.nome}
+                    isOptionEqualToValue={(alimento, value) => alimento.name === value.name}
+                    noOptionsText={"Nenhuma opção encontrada"}
+                    renderOption={(props, alimento) => (
+                      <Box component="li" {...props} key={alimento.id}>
+                        {alimento.nome}
+                      </Box>
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Alimentos"
+                      />
+                    )}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    autoFocus
+                    fullWidth
+                    id='gramas'
+                    label='Gramas'
+                    placeholder='Ex: 200'
+                    name='gramas'
+                    type="number"
+                    value={gramas}
+                    onChange={(event) => setGramas(event.target.value)}
+                    sx={{ marginBottom: 4 }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <FormTextbox />
+                        </InputAdornment>
+                      )
+                    }} />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    autoFocus
+                    fullWidth
+                    id='observacoes'
+                    label='Observações'
+                    placeholder=''
+                    name='observacoes'
+                    type="string"
+                    value={observacoes}
+                    onChange={(event) => setObservacoes(event.target.value)}
+                    sx={{ marginBottom: 4 }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <ClockTimeEightOutline />
+                        </InputAdornment>
+                      )
+                    }} />
+                </Grid>
+
+                <Snackbar open={openMensageAlimento} autoHideDuration={8000} onClose={handleCloseMensage} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+                  <Alert onClose={handleCloseMensageAlimento} >
+                    {respostaAlimento}
                   </Alert>
                 </Snackbar>
 
