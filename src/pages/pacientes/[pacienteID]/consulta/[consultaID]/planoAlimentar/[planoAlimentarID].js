@@ -375,7 +375,7 @@ const PlanoID = () => {
                       </Grid>
                       <Divider />
                         <ListaAlimentosCadastrados 
-                          id={row.id}
+                          id={row?.id}
                         />
                       <Divider />
                       <CardActions className='card-action-dense' sx={{ display: 'flex', justifyContent: 'flex-end' }}>

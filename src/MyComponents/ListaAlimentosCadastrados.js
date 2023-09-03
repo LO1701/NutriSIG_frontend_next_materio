@@ -46,83 +46,69 @@ import * as Yup from 'yup';
 import { Box, FormTextbox } from 'mdi-material-ui';
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
+import { api } from '../services/api/api'
 
 
 const ListaAlimentosCadastrados = ({id}) => {
-    console.log(id)
+
   const router = useRouter()
 
   const pacienteID = router.query.pacienteID
   const consultaID = router.query.consultaID
   const planoAlimentarID = router.query.planoAlimentarID
-
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [page, setPage] = useState(0);
-  const [planoAlimentar, setPlanoAlimentar] = useState([])
+  
   const [refeicoes, setRefeicoes] = useState([])
-  const [open, setOpen] = useState(false)
-  const [openMensage, setOpenMensage] = useState(false)
-  const [resposta, setResposta] = useState()
+  const [alimentoCadastrado, setAlimentoCadastrado] = useState([])
 
+  const buscaInformacoes = async (ctx, endPoint) => {
+
+    const resposta = await api.getInformation(ctx, endPoint)
+
+    return resposta
+  }
+  
   useEffect(async (ctx) => {
 
-    // // Busca todos os alimentos cadastrados na refeição
-    // const endPointAlimentosCadastrado = `plano/${planoAlimentarID}/refeicao/${idRefeicao}/alimento/refeicaoAlimento`
-    // const getAlimentosCadastrado = await buscaInformacoes(ctx, endPointAlimentosCadastrado)
-    // setAlimentoCadastrado(getAlimentosCadastrado.body)
+    // Busca todos os alimentos cadastrados na refeição
+    const endPointAlimentosCadastrado = `plano/${planoAlimentarID}/refeicao/${id}/alimento/refeicaoAlimento`
+    const getAlimentosCadastrado = await buscaInformacoes(ctx, endPointAlimentosCadastrado)
+    setAlimentoCadastrado(getAlimentosCadastrado.body)
+
+    console.log(alimentoCadastrado)
   }, [])
 
 
   return (
     <>
-        {refeicoes?.length > 0 ? (
-        <>
-            {refeicoes?.map(row => (
-            <Grid container spacing={6} key={row?.id}>
-                <Grid item xs={12} sm={12}>
-                <Card sx={{ marginTop: 5 }}>
-                    <CardHeader title={row?.nome} />
-                    <Divider />
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
-                    <Grid item xs={12} sm={3}>
-                        <CardContent>
-                        <Typography variant='body1'>
-                            Turno: {row?.turno}
-                        </Typography>
-                        </CardContent>
+        {alimentoCadastrado?.length > 0 ? (
+            <>
+                {alimentoCadastrado?.map(row => (
+                    <Grid container spacing={6} key={row?.id}>
+                        <Grid item xs={12} sm={12}>
+                            <Stack direction="row" alignItems="center" justifyContent="space-between">
+                            <Grid item xs={12} sm={5}>
+                                <CardContent sx={{marginLeft: 5}}>
+                                    <Typography variant='body1'>
+                                        - {row.nome}
+                                    </Typography>
+                                    <Typography variant='body1'>
+                                        - Quantidade: {row.observacoes}
+                                    </Typography>
+                                    <Typography variant='body1'>
+                                        - Calorias em kcal: {row.calorias_kcal.toFixed(2)}
+                                    </Typography>
+                                </CardContent>
+                            </Grid>
+                            </Stack>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12} sm={9} >
-                        <CardContent>
-                        <Typography variant='body1'>
-                            Horário: {row?.horario}
-                        </Typography>
-                        </CardContent>
-                    </Grid>
-                    </Stack>
-                    <Grid item xs={12} sm={6} >
-                    <CardContent>
-                        <Typography variant='body1'>
-                        Descrição: {row?.descricao}
-                        </Typography>
-                    </CardContent>
-                    </Grid>
-                    <Divider />
-                    
-                    <Divider />
-                    <CardActions className='card-action-dense' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button onClick={() => handleClickOpenAlimento(row?.id)}>Adicionar alimentos</Button>
-                    </CardActions>
-                </Card>
-                </Grid>
-            </Grid>
-            ))}
-
-        </>
+                ))}
+            </>
         ) : (
-        <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
-            <CloseBoxMultiple sx={{ marginRight: 2, fontSize: '1.375rem', }} />
-            Nenhuma refeição cadastrada
-        </Typography>
+            <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', justifyContent: 'center', margin: 10 }}>
+                <CloseBoxMultiple sx={{ marginRight: 2, fontSize: '1.375rem', }} />
+                Nenhum alimento cadastrado
+            </Typography>
         )}
     </>
   )
