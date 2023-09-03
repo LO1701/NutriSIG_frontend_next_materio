@@ -51,6 +51,8 @@ import { useFormik } from 'formik'
 import * as Yup from 'yup';
 import { Box, FormTextbox } from 'mdi-material-ui';
 
+import ListaAlimentosCadastrados from '../../../../../../MyComponents/ListaAlimentosCadastrados'
+
 
 const PlanoID = () => {
 
@@ -79,10 +81,12 @@ const PlanoID = () => {
   const [idAlimento, setIdAlimento] = useState()
 
   // States dos TestFields
-  const [alimentoSelecionado, setAlimentoSelecionado] = useState()
+  const [alimentoSelecionado, setAlimentoSelecionado] = useState(null)
   const [gramas, setGramas] = useState()
   const [observacoes, setObservacoes] = useState()
 
+  // States dos alimentos cadastrados
+  const [alimentoCadastrado, setAlimentoCadastrado] = useState(null)
 
   // Notificação
   const Alert = forwardRef(function Alert(props, ref) {
@@ -108,7 +112,7 @@ const PlanoID = () => {
 
   const criaAlimento = async (valores, ctx) => {
 
-    const endPoint = `plano/${planoAlimentarID}/refeicao/${idRefeicao}/alimento/${idAlimento}/refeicaoAlimento`
+    const endPoint = `plano/${planoAlimentarID}/refeicao/${idRefeicao}/alimento/${alimentoSelecionado.id}/refeicaoAlimento`
 
     const resposta = await api.postInformation(endPoint, valores)
 
@@ -147,7 +151,20 @@ const PlanoID = () => {
     const endPointAlimentos = `${usuarioAutenticado.body.id}/alimento`
     const getAlimentos = await buscaInformacoes(ctx, endPointAlimentos)
     setAlimento(getAlimentos.body)
+
+    // // Busca todos os alimentos cadastrados na refeição
+    // const endPointAlimentosCadastrado = `plano/${planoAlimentarID}/refeicao/${idRefeicao}/alimento/refeicaoAlimento`
+    // const getAlimentosCadastrado = await buscaInformacoes(ctx, endPointAlimentosCadastrado)
+    // setAlimentoCadastrado(getAlimentosCadastrado.body)
   }, [])
+
+  // const buscaAlimentosCadastrados = async (idRefeicao, ctx) => {
+  //   const endPointAlimentosCadastrado = `plano/${planoAlimentarID}/refeicao/${idRefeicao}/alimento/refeicaoAlimento`
+  //   const getAlimentosCadastrado = await buscaInformacoes(ctx, endPointAlimentosCadastrado)
+  //   setAlimentoCadastrado(getAlimentosCadastrado.body)
+
+  //   return alimentoCadastrado.length
+  // }
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -193,7 +210,7 @@ const PlanoID = () => {
     setOpenMensageAlimento(false);
   };
 
-  
+
 
   const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -230,14 +247,14 @@ const PlanoID = () => {
     }),
     onSubmit: async (values, helpers) => {
       try {
-        
+
         const res = await criaRefeicao(values)
 
         setResposta(res.body.msg)
         setOpenMensage(true)
         // setOpen(false)
 
-        setTimeout(function() {
+        setTimeout(function () {
           location.reload()
         }, 2000)
 
@@ -252,28 +269,28 @@ const PlanoID = () => {
     }
   });
 
-  
-  async function onSubmitAlimentos (event) {
+
+  async function onSubmitAlimentos(event) {
 
     event.preventDefault()
 
     const valores = {
-      observacoes: observacoes,
+      observacao: observacoes,
       gramas: gramas
     }
-    console.log(valores)
-    console.log(alimentoSelecionado)
-    // const res = await criaAlimento(values)
+    // console.log(valores)
+    // console.log(alimentoSelecionado)
+    const res = await criaAlimento(valores)
 
-    // setRespostaAlimento(res.body.msg)
-    // setOpenMensageAlimento(true)
+    setRespostaAlimento(res.body.msg)
+    setOpenMensageAlimento(true)
 
-    // setTimeout(function() {
-    //   location.reload()
-    // }, 2000)
+    setTimeout(function () {
+      location.reload()
+    }, 2000)
 
 
-    // console.log(res.body)
+    console.log(res.body)
   }
 
   return (
@@ -294,7 +311,7 @@ const PlanoID = () => {
               <Grid item xs={12} sm={6} >
                 <CardContent>
                   <Typography variant='body1'>
-                  Máximo Kcal: {planoAlimentar?.teto_kcal} kcal
+                    Máximo Kcal: {planoAlimentar?.teto_kcal} kcal
                   </Typography>
                 </CardContent>
               </Grid>
@@ -314,7 +331,7 @@ const PlanoID = () => {
       </Grid>
 
       <>
-        <Container sx={{mt:12}}>
+        <Container sx={{ mt: 12 }}>
           <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5} sx={{ marginTop: '25px' }}>
             <Typography variant="h5" gutterBottom>
               Refeições
@@ -330,7 +347,7 @@ const PlanoID = () => {
               {refeicoes?.map(row => (
                 <Grid container spacing={6} key={row?.id}>
                   <Grid item xs={12} sm={12}>
-                    <Card sx={{marginTop: 5}}>
+                    <Card sx={{ marginTop: 5 }}>
                       <CardHeader title={row?.nome} />
                       <Divider />
                       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
@@ -356,6 +373,10 @@ const PlanoID = () => {
                           </Typography>
                         </CardContent>
                       </Grid>
+                      <Divider />
+                        <ListaAlimentosCadastrados 
+                          id={row.id}
+                        />
                       <Divider />
                       <CardActions className='card-action-dense' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                         <Button onClick={() => handleClickOpenAlimento(row?.id)}>Adicionar alimentos</Button>
@@ -463,10 +484,10 @@ const PlanoID = () => {
                     placeholder="Descrição"
                     value={formikRefeicoes.values.descricao}
                     onChange={formikRefeicoes.handleChange}
-                    sx={{ marginBottom: 4 }} 
+                    sx={{ marginBottom: 4 }}
                     multiline
                     rows={2}
-                    />
+                  />
                 </Grid>
 
                 {formikRefeicoes.errors.submit && (
@@ -498,7 +519,7 @@ const PlanoID = () => {
         </Dialog>
       </div>
 
-{/* Modal dos alimentos */}
+      {/* Modal dos alimentos */}
 
       <div>
         <Dialog open={openAlimento} onClose={handleCloseAlimento}>
@@ -507,50 +528,61 @@ const PlanoID = () => {
             <form noValidate autoComplete='off' onSubmit={onSubmitAlimentos}>
               <Grid container spacing={7}>
                 <Grid item xs={12} sm={6}>
-                {/* <Autocomplete
-                    freeSolo
+                  <Autocomplete
                     value={alimentoSelecionado}
                     onChange={(event, newValue) => {
                       setAlimentoSelecionado(newValue);
                     }}
                     id="alimento"
                     disableClearable
-                    key={alimento?.map((option) => option?.id)}
-                    options={alimento?.map((option) => option?.nome)}
+                    noOptionsText={"Nenhuma alimento encontrado"}
+                    isOptionEqualToValue={(alimento, value) => alimento.nome === value.nome}
+                    options={alimento}
+                    getOptionLabel={(alimento) => alimento.nome}
                     renderInput={(params) => (
                       <TextField
+                        key={alimento?.id}
                         {...params}
                         label="Alimentos"
                         InputProps={{
-                          ...params.InputProps,
-                          type: 'search',
+                          ...params.InputProps
                         }}
                       />
                     )}
-                  /> */}
-                  <Autocomplete
+                  />
+                  {/* <Autocomplete
                     id="alimento"
-                    // value={alimentoSelecionado}
+                    value={alimentoSelecionado}
                     onChange={(event, newValue) => {
                       setAlimentoSelecionado(newValue);
                     }}
                     options={alimento}
                     sx={{ width: 300 }}
                     getOptionLabel={(alimento) => alimento.nome}
-                    isOptionEqualToValue={(alimento, value) => alimento.name === value.name}
-                    noOptionsText={"Nenhuma opção encontrada"}
-                    renderOption={(props, alimento) => (
-                      <Box component="li" {...props} key={alimento.id}>
-                        {alimento.nome}
-                      </Box>
-                    )}
+                    isOptionEqualToValue={(alimento, value) => alimento.nome === value.nome}
+                    noOptionsText={"Nenhuma alimento encontrada"}
+                    // renderOption={(props, alimento) => (
+                    //   <Box component="li" {...props} key={alimento.id}>
+                    //     {alimento.nome}
+                    //   </Box>
+                    // )}
+                    // renderInput={(params) => (
+                    //   <TextField
+                    //     {...params}
+                    //     label="Alimentos"
+                    //   />
+                    // )}
                     renderInput={(params) => (
                       <TextField
+                        key={alimento?.id}
                         {...params}
                         label="Alimentos"
+                        InputProps={{
+                          ...params.InputProps
+                        }}
                       />
                     )}
-                  />
+                  /> */}
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
@@ -574,8 +606,10 @@ const PlanoID = () => {
                     }} />
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={12}>
                   <TextField
+                    multiline
+                    rows={3}
                     autoFocus
                     fullWidth
                     id='observacoes'
@@ -586,13 +620,7 @@ const PlanoID = () => {
                     value={observacoes}
                     onChange={(event) => setObservacoes(event.target.value)}
                     sx={{ marginBottom: 4 }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <ClockTimeEightOutline />
-                        </InputAdornment>
-                      )
-                    }} />
+                  />
                 </Grid>
 
                 <Snackbar open={openMensageAlimento} autoHideDuration={8000} onClose={handleCloseMensage} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>

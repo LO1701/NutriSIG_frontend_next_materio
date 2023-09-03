@@ -30,11 +30,8 @@ const Dashboard = (props) => {
   return (
     <ApexChartWrapper>
       <h1>Dash</h1>
-      <pre>
-        {/* {JSON.stringify(props, null, 2)} */}
-      </pre> 
-      {/* <Grid container spacing={6}>
-        <Grid item xs={12} md={4}>
+      <Grid container spacing={6}>
+        {/* <Grid item xs={12} md={4}>
           <Trophy />
         </Grid>
         <Grid item xs={12} md={8}>
@@ -99,9 +96,9 @@ const Dashboard = (props) => {
           <DepositWithdraw />
         </Grid>
         <Grid item xs={12}>
-          <Table />
-        </Grid>
-      </Grid> */}
+          {/* <Table />
+        </Grid> */}
+      </Grid>
     </ApexChartWrapper>
   )
 }
