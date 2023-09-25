@@ -23,6 +23,7 @@ import {
   InputAdornment,
 } from '@mui/material';
 import ScaleBathroom from 'mdi-material-ui/ScaleBathroom'
+import PrinterOutline from 'mdi-material-ui/PrinterOutline'
 import Grid from '@mui/material/Grid'
 import Divider from '@mui/material/Divider'
 import { styled } from '@mui/material/styles'
@@ -53,6 +54,8 @@ import { Box, FormTextbox } from 'mdi-material-ui';
 
 import ListaAlimentosCadastrados from '../../../../../../MyComponents/ListaAlimentosCadastrados'
 
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
 
 const PlanoID = () => {
 
@@ -210,7 +213,55 @@ const PlanoID = () => {
     setOpenMensageAlimento(false);
   };
 
+  // Function de gerar o pdf
 
+  const geraPdfPlanoAlimentar = () => {
+    pdfMake.vfs = pdfFonts.pdfMake.vfs
+
+    const titulo = [
+      {
+        text: 'Plano alimentar',
+        fontSize: 15,
+        margin: [15, 20, 15, 45], // left, top, right, bottom
+        bold: true
+      }
+    ]
+
+    const informacoesPlanoAlimenter = refeicoes.map((refeicao) => {
+
+      return [
+        {
+          text: refeicao.nome,
+          style: 'header' 
+        }
+      ]
+    })
+
+    const conteudo = informacoesPlanoAlimenter
+console.log(conteudo)
+    function rodape (paginaAtual, numeroPaginas) {
+      return [
+        {
+          text: `${paginaAtual}/${numeroPaginas}`,
+          alignment: 'right',
+          fontSize: 9,
+          margin: [0, 10, 20, 0], // left, top, right, bottom
+          bold: true
+        }
+      ]
+
+    }
+
+    const documentoConfigurado = {
+      pageSize: 'A4',
+      pageMargins: [15, 50, 15, 40],
+      header: [titulo],
+      content: [conteudo],
+      footer: rodape
+    }
+
+    pdfMake.createPdf(documentoConfigurado).open();
+  }
 
   const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -336,10 +387,20 @@ const PlanoID = () => {
             <Typography variant="h5" gutterBottom>
               Refeições
             </Typography>
-            <Button variant="contained" onClick={handleClickOpen}>
-              <ScaleBathroom sx={{ marginRight: 1, fontSize: '1.375rem', marginBottom: 1 }} />
-              Adicionar
-            </Button>
+            <Stack direction="row" alignItems="center">
+              <Grid item xs={12} sm={12} >
+                <Button variant="contained" onClick={handleClickOpen}>
+                  <ScaleBathroom sx={{ marginRight: 1, fontSize: '1.375rem', marginBottom: 1 }} />
+                  Adicionar
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={12} >
+                <Button variant="contained" onClick={geraPdfPlanoAlimentar} sx={{ ml: 3, backgroundColor: '#1a78cf', '&:hover': { color: '#FFF', backgroundColor: '#00529d', } }}>
+                  <PrinterOutline sx={{ marginRight: 1, fontSize: '1.375rem', marginBottom: 1 }} />
+                  Imprimir
+                </Button>
+              </Grid>
+            </Stack>
           </Stack>
 
           {refeicoes?.length > 0 ? (
@@ -374,9 +435,9 @@ const PlanoID = () => {
                         </CardContent>
                       </Grid>
                       <Divider />
-                        <ListaAlimentosCadastrados 
-                          id={row?.id}
-                        />
+                      <ListaAlimentosCadastrados
+                        id={row?.id}
+                      />
                       <Divider />
                       <CardActions className='card-action-dense' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                         <Button onClick={() => handleClickOpenAlimento(row?.id)}>Adicionar alimentos</Button>

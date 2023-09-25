@@ -16,13 +16,16 @@ import VerticalAppBarContent from './components/vertical/AppBarContent'
 import { useSettings } from '../@core/hooks/useSettings'
 import { useAuth } from '../@core/hooks/useAuth'
 
+
+
+import { useEffect, useState } from 'react'
+import { tokenService } from '../services/auth/tokenService'
+import PlanoAlimentarPaciente from '../pages/planoAlimentarPaciente'
+
+
 const UserLayout = ({ children }) => {
   // ** Hooks
   const { settings, saveSettings } = useSettings()
-
-  const { user } = useAuth()
-
-  // console.log(user)
 
   /**
    *  The below variable will hide the current layout menu at given screen size.
@@ -34,25 +37,57 @@ const UserLayout = ({ children }) => {
    */
   const hidden = useMediaQuery(theme => theme.breakpoints.down('lg'))
 
+  const [token, setToken] = useState()
+  
+  useEffect(async (ctx) => {
+    const token = tokenService.get(ctx);
+
+    setToken(token)
+  }, [])
+
   return (
-    <VerticalLayout
-      hidden={hidden}
-      settings={settings}
-      saveSettings={saveSettings}
-      verticalNavItems={VerticalNavItems()} // Navigation Items
-      verticalAppBarContent={(
-        props // AppBar Content
-      ) => (
-        <VerticalAppBarContent
+    <>
+      {token ? (
+        <VerticalLayout
           hidden={hidden}
           settings={settings}
           saveSettings={saveSettings}
-          toggleNavVisibility={props.toggleNavVisibility}
-        />
-      )}
-    >
-      {children}
-    </VerticalLayout>
+          verticalNavItems={VerticalNavItems()} // Navigation Items
+          verticalAppBarContent={(
+            props // AppBar Content
+          ) => (
+            <VerticalAppBarContent
+              hidden={hidden}
+              settings={settings}
+              saveSettings={saveSettings}
+              toggleNavVisibility={props.toggleNavVisibility}
+            />
+          )}
+        >
+          {children}
+        </VerticalLayout>
+        ):(
+          <VerticalLayout
+          hidden={hidden}
+          settings={settings}
+          saveSettings={saveSettings}
+          // verticalNavItems={VerticalNavItems()} // Navigation Items
+          // verticalAppBarContent={(
+          //   props // AppBar Content
+          // ) => (
+          //   <VerticalAppBarContent
+          //     hidden={hidden}
+          //     settings={settings}
+          //     saveSettings={saveSettings}
+          //     toggleNavVisibility={props.toggleNavVisibility}
+          //   />
+          // )}
+        >
+           <PlanoAlimentarPaciente />
+        </VerticalLayout>
+        )
+        }
+    </>
   )
 }
 
