@@ -20,7 +20,7 @@ import { useAuth } from '../@core/hooks/useAuth'
 
 import { useEffect, useState } from 'react'
 import { tokenService } from '../services/auth/tokenService'
-import PlanoAlimentarPaciente from '../pages/planoAlimentarPaciente'
+import PlanoAlimentarPaciente from '../pages/pacientes/[pacienteID]/consulta/[consultaID]/planoAlimentar/[planoAlimentarID]/planoAlimentarPaciente'
 
 
 const UserLayout = ({ children }) => {
@@ -67,24 +67,24 @@ const UserLayout = ({ children }) => {
           {children}
         </VerticalLayout>
         ):(
-          <VerticalLayout
-          hidden={hidden}
-          settings={settings}
-          saveSettings={saveSettings}
-          // verticalNavItems={VerticalNavItems()} // Navigation Items
-          // verticalAppBarContent={(
-          //   props // AppBar Content
-          // ) => (
-          //   <VerticalAppBarContent
-          //     hidden={hidden}
-          //     settings={settings}
-          //     saveSettings={saveSettings}
-          //     toggleNavVisibility={props.toggleNavVisibility}
-          //   />
-          // )}
-        >
+        //   <VerticalLayout
+        //   hidden={hidden}
+        //   settings={settings}
+        //   saveSettings={saveSettings}
+        //   // verticalNavItems={VerticalNavItems()} // Navigation Items
+        //   // verticalAppBarContent={(
+        //   //   props // AppBar Content
+        //   // ) => (
+        //   //   <VerticalAppBarContent
+        //   //     hidden={hidden}
+        //   //     settings={settings}
+        //   //     saveSettings={saveSettings}
+        //   //     toggleNavVisibility={props.toggleNavVisibility}
+        //   //   />
+        //   // )}
+        // >
            <PlanoAlimentarPaciente />
-        </VerticalLayout>
+        // </VerticalLayout>
         )
         }
     </>
