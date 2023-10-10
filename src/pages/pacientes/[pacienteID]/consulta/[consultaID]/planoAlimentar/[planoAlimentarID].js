@@ -50,7 +50,7 @@ import { authService } from '../../../../../../services/auth/authService';
 // ** Foormik and yup Imports
 import { useFormik } from 'formik'
 import * as Yup from 'yup';
-import { Box, FormTextbox } from 'mdi-material-ui';
+import { Box, FormTextbox, React } from 'mdi-material-ui';
 
 import ListaAlimentosCadastrados from '../../../../../../MyComponents/ListaAlimentosCadastrados'
 
@@ -58,6 +58,10 @@ import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import { useReactToPrint } from 'react-to-print'
 import Head from 'next/head'
+
+import imagemLogo from '../../../../../../img/wepik-duotone-modern-healthy-organic-food-logo-20230626195207HvXd.png'
+import Image from 'next/image'
+import ListaAlimentosCadastradosImpressao from '../../../../../../MyComponents/ListaAlimentosCadastradosImpressao'
 
 const PlanoID = () => {
 
@@ -74,6 +78,8 @@ const PlanoID = () => {
   const [open, setOpen] = useState(false)
   const [openMensage, setOpenMensage] = useState(false)
   const [resposta, setResposta] = useState()
+  const [usuario, setUsuario] = useState()
+  const [verificadorImpressao, setVerificadorImpressao] = useState(0)
 
   // States de Alimentos
   const [openAlimento, setOpenAlimento] = useState(false)
@@ -140,6 +146,8 @@ const PlanoID = () => {
 
   useEffect(async (ctx) => {
     const usuarioAutenticado = await authService.getSession(ctx)
+
+    setUsuario(usuarioAutenticado.body)
 
     // Busca informações do plano alimentar
     const endPointPlanoAlimentar = `paciente/consulta/${consultaID}/plano/${planoAlimentarID}`
@@ -226,8 +234,6 @@ const PlanoID = () => {
       ]
     })
 
-    const conteudo = informacoesPlanoAlimenter
-    console.log(conteudo)
     function rodape(paginaAtual, numeroPaginas) {
       return [
         {
@@ -245,7 +251,7 @@ const PlanoID = () => {
       pageSize: 'A4',
       pageMargins: [15, 50, 15, 40],
       header: [titulo],
-      content: [conteudo],
+      content: [informacoesPlanoAlimenter],
       footer: rodape
     }
 
@@ -253,7 +259,7 @@ const PlanoID = () => {
   }
 
   const componentRef = useRef()
-  const geraImpressao = useReactToPrint({
+  const eventoImpressao = useReactToPrint({
     content: () => componentRef.current,
   })
 
@@ -338,6 +344,7 @@ const PlanoID = () => {
     console.log(res.body)
   }
 
+
   return (
     <>
       <Grid container spacing={6}>
@@ -389,7 +396,7 @@ const PlanoID = () => {
                 </Button>
               </Grid>
               <Grid item xs={12} sm={12} >
-                <Button variant="contained" onClick={geraImpressao} sx={{ ml: 3, backgroundColor: '#1a78cf', '&:hover': { color: '#FFF', backgroundColor: '#00529d', } }}>
+                <Button variant="contained" onClick={eventoImpressao} sx={{ ml: 3, backgroundColor: '#1a78cf', '&:hover': { color: '#FFF', backgroundColor: '#00529d', } }}>
                   <PrinterOutline sx={{ marginRight: 1, fontSize: '1.375rem', marginBottom: 1 }} />
                   Imprimir
                 </Button>
@@ -699,59 +706,74 @@ const PlanoID = () => {
         </Dialog>
       </div>
 
-      {/* html de impressão */}
+      {/* html de impressão */} 
+      <div style={{ display: "none" }}>
+        <div ref={componentRef}>
+          <>
+            {refeicoes?.length > 0 ? (
+              <>
+                <Stack direction="column" alignItems="center" justifyContent="space-between" mt={5}>
+                  <Image
+                    src={imagemLogo}
+                    alt='Imagem logo'
+                    width={90}
+                    height={90}
+                    priority={true}
+                  />
+                  <Typography variant='h4' color={'#524e59'}>NutriSIG</Typography>
+                  <Typography variant='overline' color={'#75737c'} sx={{ fontSize: 10 }}>SISTEMA DE INFORMAÇÃO GERENCIAL PARA NUTRIÇÃO</Typography>
+                </Stack>
+                <h2 style={{ marginLeft: 55, color: '#000' }}>Plano Alimentar</h2>
+                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+                  <h4 style={{ margin: 15, color: '#000' }}>Nutricionista: {usuario?.nome}</h4>
+                  <h4 style={{ margin: 15, color: '#000' }}>Máximo Kcal: {planoAlimentar?.teto_kcal} kcal</h4>
+                  <h4 style={{ margin: 15, color: '#000' }}>Data de criação: {planoAlimentar?.dataFormatada}</h4>
+                </Stack>
+                {refeicoes?.map(row => (
+                  <Grid container spacing={6} key={row?.id}>
+                    <Grid item xs={12} sm={12}>
+                      <hr className="solid" style={{ width: 995 }} />
+                      <Typography variant='h6' color={'#000'} ml={4}>{row?.nome}</Typography>
+                      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+                        <Grid item xs={12} sm={3}>
+                          <CardContent>
+                            <Typography variant='body1' color={'#000'}>
+                              Turno: {row?.turno}
+                            </Typography>
+                          </CardContent>
+                        </Grid>
+                        <Grid item xs={12} sm={9} >
+                          <CardContent>
+                            <Typography variant='body1' color={'#000'}>
+                              Horário: {row?.horario}
+                            </Typography>
+                          </CardContent>
+                        </Grid>
+                      </Stack>
+                      <Grid item xs={12} sm={6} mt={-7}>
+                        <CardContent>
+                          <Typography variant='body1' color={'#000'}>
+                            Descrição: {row?.descricao}
+                          </Typography>
+                        </CardContent>
+                      </Grid>
+                      <ListaAlimentosCadastradosImpressao
+                        id={row?.id}
+                      />
 
-      <div ref={componentRef}>
-        <>
-          {refeicoes?.length > 0 ? (
-            <>
-              <h2 style={{ marginLeft: 25, color: '#000' }}>Plano Alimentar</h2>
-              {refeicoes?.map(row => (
-                <Grid container spacing={6} key={row?.id}>
-                <Grid item xs={12} sm={12}>
-                  
-                    <CardHeader title={row?.nome} />
-                    <Divider />
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
-                      <Grid item xs={12} sm={3}>
-                        <CardContent>
-                          <Typography variant='body1' color={'#000'}>
-                            Turno: {row?.turno}
-                          </Typography>
-                        </CardContent>
-                      </Grid>
-                      <Grid item xs={12} sm={9} >
-                        <CardContent>
-                          <Typography variant='body1' color={'#000'}>
-                            Horário: {row?.horario}
-                          </Typography>
-                        </CardContent>
-                      </Grid>
-                    </Stack>
-                    <Grid item xs={12} sm={6} >
-                      <CardContent>
-                        <Typography variant='body1' color={'#000'}>
-                          Descrição: {row?.descricao}
-                        </Typography>
-                      </CardContent>
                     </Grid>
-                    <Divider />
-                    <ListaAlimentosCadastrados
-                      id={row?.id}
-                    />
-                
-                </Grid>
-              </Grid>
-              ))}
+                  </Grid>
+                ))}
 
-            </>
-          ) : (
-            <Typography variant="subtitle1" color={'#000'} gutterBottom sx={{ display: 'flex', justifyContent: 'center', marginTop: 20}}>
-              <CloseBoxMultiple sx={{ marginRight: 2, fontSize: '1.375rem', }} />
-              Nenhuma refeição cadastrada
-            </Typography>
-          )}
-        </>
+              </>
+            ) : (
+              <Typography variant="subtitle1" gutterBottom sx={{ color: '#000', display: 'flex', justifyContent: 'center', marginTop: 20 }}>
+                <CloseBoxMultiple sx={{ marginRight: 2, fontSize: '1.375rem', }} />
+                Nenhuma refeição cadastrada
+              </Typography>
+            )}
+          </>
+        </div> 
       </div>
     </>
   )
