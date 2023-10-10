@@ -18,10 +18,11 @@ import { useAuth } from '../@core/hooks/useAuth'
 
 
 
-import { useEffect, useState } from 'react'
+import { Children, useEffect, useState } from 'react'
 import { tokenService } from '../services/auth/tokenService'
-import PlanoAlimentarPaciente from '../pages/pacientes/[pacienteID]/consulta/[consultaID]/planoAlimentar/[planoAlimentarID]/planoAlimentarPaciente'
 
+// import PacientePlanoAlimentar from '../pages/pacientes/[pacienteID]/consulta/[consultaID]/planoAlimentar/[planoAlimentarID]/pacientePlanoAlimentar'
+import PlanoPac from '../pages/pacientes/[pacienteID]/consulta/[consultaID]/planoAlimentar/[planoAlimentarID]/planoPac'
 
 const UserLayout = ({ children }) => {
   // ** Hooks
@@ -83,7 +84,7 @@ const UserLayout = ({ children }) => {
         //   //   />
         //   // )}
         // >
-           <PlanoAlimentarPaciente />
+            <PlanoPac />
         // </VerticalLayout>
         )
         }

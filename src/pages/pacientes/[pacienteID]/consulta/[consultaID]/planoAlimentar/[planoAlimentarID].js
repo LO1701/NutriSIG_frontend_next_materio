@@ -44,7 +44,7 @@ import 'dayjs/locale/en-gb';
 
 // ** import Select
 import { useRouter } from 'next/router'
-import { useEffect, useState, forwardRef } from 'react';
+import { useEffect, useState, forwardRef, useRef } from 'react';
 import { authService } from '../../../../../../services/auth/authService';
 
 // ** Foormik and yup Imports
@@ -56,6 +56,8 @@ import ListaAlimentosCadastrados from '../../../../../../MyComponents/ListaAlime
 
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
+import { useReactToPrint } from 'react-to-print'
+import Head from 'next/head'
 
 const PlanoID = () => {
 
@@ -154,20 +156,7 @@ const PlanoID = () => {
     const endPointAlimentos = `${usuarioAutenticado.body.id}/alimento`
     const getAlimentos = await buscaInformacoes(ctx, endPointAlimentos)
     setAlimento(getAlimentos.body)
-
-    // // Busca todos os alimentos cadastrados na refeição
-    // const endPointAlimentosCadastrado = `plano/${planoAlimentarID}/refeicao/${idRefeicao}/alimento/refeicaoAlimento`
-    // const getAlimentosCadastrado = await buscaInformacoes(ctx, endPointAlimentosCadastrado)
-    // setAlimentoCadastrado(getAlimentosCadastrado.body)
   }, [])
-
-  // const buscaAlimentosCadastrados = async (idRefeicao, ctx) => {
-  //   const endPointAlimentosCadastrado = `plano/${planoAlimentarID}/refeicao/${idRefeicao}/alimento/refeicaoAlimento`
-  //   const getAlimentosCadastrado = await buscaInformacoes(ctx, endPointAlimentosCadastrado)
-  //   setAlimentoCadastrado(getAlimentosCadastrado.body)
-
-  //   return alimentoCadastrado.length
-  // }
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -232,14 +221,14 @@ const PlanoID = () => {
       return [
         {
           text: refeicao.nome,
-          style: 'header' 
+          style: 'header'
         }
       ]
     })
 
     const conteudo = informacoesPlanoAlimenter
-console.log(conteudo)
-    function rodape (paginaAtual, numeroPaginas) {
+    console.log(conteudo)
+    function rodape(paginaAtual, numeroPaginas) {
       return [
         {
           text: `${paginaAtual}/${numeroPaginas}`,
@@ -262,6 +251,11 @@ console.log(conteudo)
 
     pdfMake.createPdf(documentoConfigurado).open();
   }
+
+  const componentRef = useRef()
+  const geraImpressao = useReactToPrint({
+    content: () => componentRef.current,
+  })
 
   const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -395,7 +389,7 @@ console.log(conteudo)
                 </Button>
               </Grid>
               <Grid item xs={12} sm={12} >
-                <Button variant="contained" onClick={geraPdfPlanoAlimentar} sx={{ ml: 3, backgroundColor: '#1a78cf', '&:hover': { color: '#FFF', backgroundColor: '#00529d', } }}>
+                <Button variant="contained" onClick={geraImpressao} sx={{ ml: 3, backgroundColor: '#1a78cf', '&:hover': { color: '#FFF', backgroundColor: '#00529d', } }}>
                   <PrinterOutline sx={{ marginRight: 1, fontSize: '1.375rem', marginBottom: 1 }} />
                   Imprimir
                 </Button>
@@ -703,6 +697,61 @@ console.log(conteudo)
             </form>
           </DialogContent>
         </Dialog>
+      </div>
+
+      {/* html de impressão */}
+
+      <div ref={componentRef}>
+        <>
+          {refeicoes?.length > 0 ? (
+            <>
+              <h2 style={{ marginLeft: 25, color: '#000' }}>Plano Alimentar</h2>
+              {refeicoes?.map(row => (
+                <Grid container spacing={6} key={row?.id}>
+                <Grid item xs={12} sm={12}>
+                  
+                    <CardHeader title={row?.nome} />
+                    <Divider />
+                    <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+                      <Grid item xs={12} sm={3}>
+                        <CardContent>
+                          <Typography variant='body1' color={'#000'}>
+                            Turno: {row?.turno}
+                          </Typography>
+                        </CardContent>
+                      </Grid>
+                      <Grid item xs={12} sm={9} >
+                        <CardContent>
+                          <Typography variant='body1' color={'#000'}>
+                            Horário: {row?.horario}
+                          </Typography>
+                        </CardContent>
+                      </Grid>
+                    </Stack>
+                    <Grid item xs={12} sm={6} >
+                      <CardContent>
+                        <Typography variant='body1' color={'#000'}>
+                          Descrição: {row?.descricao}
+                        </Typography>
+                      </CardContent>
+                    </Grid>
+                    <Divider />
+                    <ListaAlimentosCadastrados
+                      id={row?.id}
+                    />
+                
+                </Grid>
+              </Grid>
+              ))}
+
+            </>
+          ) : (
+            <Typography variant="subtitle1" color={'#000'} gutterBottom sx={{ display: 'flex', justifyContent: 'center', marginTop: 20}}>
+              <CloseBoxMultiple sx={{ marginRight: 2, fontSize: '1.375rem', }} />
+              Nenhuma refeição cadastrada
+            </Typography>
+          )}
+        </>
       </div>
     </>
   )
