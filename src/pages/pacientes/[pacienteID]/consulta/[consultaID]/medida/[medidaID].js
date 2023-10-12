@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, forwardRef } from 'react'
+import { useState, forwardRef, useEffect } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -88,18 +88,29 @@ const Alert = forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} sx={{ width: '100%', backgroundColor: '#10B981', color: '#FFF' }} />;
 });
 
-const Medida = () => {
+const MedidaID = () => {
 
     const auth = useAuth()
     const router = useRouter()
 
     const consultaID = router.query.consultaID
     const pacienteID = router.query.pacienteID
+    const medidaID = router.query.medidaID
 
     // ** State
     const [value, setValue] = useState('account')
     const [open, setOpen] = useState(false);
     const [resposta, setResposta] = useState();
+    const [respostaDoBackEnd, setRespostaDoBackEnd] = useState([]);
+    const [imc, setIMC] = useState();
+    const [classificacaoIMC, setClassificacaoIMC] = useState();
+
+    useEffect(async (ctx) => {
+        const endPoint = `paciente/consulta/${consultaID}/medida/${medidaID}`
+        const resposta = await api.getInformation(ctx, endPoint)
+        setRespostaDoBackEnd(resposta)
+        console.log(resposta)
+    }, [])
 
     const handleChange = (event, newValue) => {
         setValue(newValue)
@@ -113,10 +124,10 @@ const Medida = () => {
         setOpen(false);
     };
 
-    const criaMedida = async (values) => {
-        const endPoint = `paciente/consulta/${consultaID}/medida`
+    const alteraMedida = async (values) => {
+        const endPoint = `paciente/consulta/${consultaID}/medida/${medidaID}`
 
-        const resposta = await api.postInformation(endPoint, values)
+        const resposta = await api.putInformation(endPoint, values)
 
         return resposta
     }
@@ -124,10 +135,12 @@ const Medida = () => {
     // Formik
     const formik = useFormik({
         initialValues: {
-            altura: '',
-            peso_atual: '',
-            estado_nutricional: '',
-            diagnostico_nutricional: '',
+            altura: respostaDoBackEnd?.body?.altura,
+            peso_atual: respostaDoBackEnd?.body?.peso_atual,
+            estado_nutricional: respostaDoBackEnd?.body?.estado_nutricional,
+            diagnostico_nutricional: respostaDoBackEnd?.body?.diagnostico_nutricional,
+            imc: respostaDoBackEnd?.body?.imc_atual,
+            classificacao: respostaDoBackEnd?.body?.classificacao_imc,
             submit: null
         },
         enableReinitialize: true,
@@ -147,18 +160,26 @@ const Medida = () => {
         }),
         onSubmit: async (values, helpers) => {
             try {
-                const resposta = await criaMedida(values)
+
+                const valoresParaAlterar = {
+                    altura: values.altura,
+                    peso_atual: values.peso_atual,
+                    estado_nutricional: values.estado_nutricional,
+                    diagnostico_nutricional: values.diagnostico_nutricional
+                }
+                
+                const resposta = await alteraMedida(valoresParaAlterar)
 
                 if (resposta.ok === true) {
-                    setResposta('Medida criada com sucesso')
+                    setResposta('Medida alterada com sucesso')
                 } else {
-                    setResposta('Erro ao criar a consulta')
+                    setResposta('Erro ao alterar a consulta')
                 }
 
                 setOpen(true)
 
                 setTimeout(function () {
-                    router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/medida/${resposta.body.id}`)
+                    router.reload()
                 }, 2000)
 
             } catch (err) {
@@ -171,7 +192,7 @@ const Medida = () => {
 
     return (
         <>
-            <IconButton size='small' sx={{ marginBottom: 4 }} onClick={() => { router.back() }}>
+            <IconButton size='small' sx={{ marginBottom: 4 }} onClick={() => { router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/perfil`) }}>
                 <ArrowLeftCircle sx={{ marginRight: 2, fontSize: '1.375rem', }} />
                 Perfil
             </IconButton>
@@ -279,19 +300,51 @@ const Medida = () => {
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     disabled
+                                    error={!!(formik.touched.imc && formik.errors.imc)}
+                                    autoFocus
                                     fullWidth
+                                    helperText={formik.touched.imc && formik.errors.imc}
+                                    id='imc'
                                     label='IMC'
-                                    id="outlined-disabled"
-                                />
+                                    placeholder=''
+                                    name='imc'
+                                    type="string"
+                                    value={formik.values.imc}
+                                    onBlur={formik.handleBlur}
+                                    onChange={formik.handleChange}
+                                    sx={{ marginBottom: 4 }}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position='start'>
+                                                <CardBulletedOutline />
+                                            </InputAdornment>
+                                        )
+                                    }} />
                             </Grid>
 
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     disabled
+                                    error={!!(formik.touched.classificacao && formik.errors.classificacao)}
+                                    autoFocus
                                     fullWidth
+                                    helperText={formik.touched.classificacao && formik.errors.classificacao}
+                                    id='classificacao'
                                     label='Classificação - IMC'
-                                    id="outlined-disabled"
-                                />
+                                    placeholder=''
+                                    name='classificacao'
+                                    type="string"
+                                    value={formik.values.classificacao}
+                                    onBlur={formik.handleBlur}
+                                    onChange={formik.handleChange}
+                                    sx={{ marginBottom: 4 }}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position='start'>
+                                                <CardBulletedOutline />
+                                            </InputAdornment>
+                                        )
+                                    }} />
                             </Grid>
 
                             {formik.errors.submit && (
@@ -321,7 +374,7 @@ const Medida = () => {
     )
 }
 
-export default Medida
+export default MedidaID
 
 export const getServerSideProps = async (ctx) => {
     const token = tokenService.get(ctx);

@@ -21,6 +21,7 @@ import {
   CardActions,
   TextField,
   InputAdornment,
+  IconButton,
 } from '@mui/material';
 import ScaleBathroom from 'mdi-material-ui/ScaleBathroom'
 import PrinterOutline from 'mdi-material-ui/PrinterOutline'
@@ -50,7 +51,7 @@ import { authService } from '../../../../../../services/auth/authService';
 // ** Foormik and yup Imports
 import { useFormik } from 'formik'
 import * as Yup from 'yup';
-import { Box, FormTextbox, React } from 'mdi-material-ui';
+import { ArrowLeftCircle, Box, FormTextbox, React } from 'mdi-material-ui';
 
 import ListaAlimentosCadastrados from '../../../../../../MyComponents/ListaAlimentosCadastrados'
 
@@ -159,6 +160,8 @@ const PlanoID = () => {
     const endPointRefeicoes = `${usuarioAutenticado.body.id}/paciente/consulta/plano/${planoAlimentarID}/refeicao`
     const getRefeicoes = await buscaInformacoes(ctx, endPointRefeicoes)
     setRefeicoes(getRefeicoes.body)
+
+    console.log(getRefeicoes)
 
     // Busca todos os alimentos do select
     const endPointAlimentos = `${usuarioAutenticado.body.id}/alimento`
@@ -306,7 +309,7 @@ const PlanoID = () => {
         // setOpen(false)
 
         setTimeout(function () {
-          location.reload()
+          router.reload()
         }, 2000)
 
 
@@ -337,16 +340,18 @@ const PlanoID = () => {
     setOpenMensageAlimento(true)
 
     setTimeout(function () {
-      location.reload()
+      router.reload()
     }, 2000)
 
-
-    console.log(res.body)
   }
 
 
   return (
     <>
+      <IconButton size='small' sx={{ marginBottom: 4 }} onClick={() => { router.back() }}>
+        <ArrowLeftCircle sx={{ marginRight: 2, fontSize: '1.375rem', }} />
+        Perfil
+      </IconButton>
       <Grid container spacing={6}>
         <Grid item xs={12} sm={12}>
           <Card>
@@ -458,6 +463,7 @@ const PlanoID = () => {
         </Container>
       </>
 
+      {/* Modal das refeições */}
       <div>
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>Refeição</DialogTitle>
@@ -612,39 +618,6 @@ const PlanoID = () => {
                       />
                     )}
                   />
-                  {/* <Autocomplete
-                    id="alimento"
-                    value={alimentoSelecionado}
-                    onChange={(event, newValue) => {
-                      setAlimentoSelecionado(newValue);
-                    }}
-                    options={alimento}
-                    sx={{ width: 300 }}
-                    getOptionLabel={(alimento) => alimento.nome}
-                    isOptionEqualToValue={(alimento, value) => alimento.nome === value.nome}
-                    noOptionsText={"Nenhuma alimento encontrada"}
-                    // renderOption={(props, alimento) => (
-                    //   <Box component="li" {...props} key={alimento.id}>
-                    //     {alimento.nome}
-                    //   </Box>
-                    // )}
-                    // renderInput={(params) => (
-                    //   <TextField
-                    //     {...params}
-                    //     label="Alimentos"
-                    //   />
-                    // )}
-                    renderInput={(params) => (
-                      <TextField
-                        key={alimento?.id}
-                        {...params}
-                        label="Alimentos"
-                        InputProps={{
-                          ...params.InputProps
-                        }}
-                      />
-                    )}
-                  /> */}
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
@@ -675,7 +648,7 @@ const PlanoID = () => {
                     autoFocus
                     fullWidth
                     id='observacoes'
-                    label='Observações'
+                    label='Medida caseira'
                     placeholder=''
                     name='observacoes'
                     type="string"
@@ -706,7 +679,7 @@ const PlanoID = () => {
         </Dialog>
       </div>
 
-      {/* html de impressão */} 
+      {/* html de impressão */}
       <div style={{ display: "none" }}>
         <div ref={componentRef}>
           <>
@@ -718,7 +691,6 @@ const PlanoID = () => {
                     alt='Imagem logo'
                     width={90}
                     height={90}
-                    priority={true}
                   />
                   <Typography variant='h4' color={'#524e59'}>NutriSIG</Typography>
                   <Typography variant='overline' color={'#75737c'} sx={{ fontSize: 10 }}>SISTEMA DE INFORMAÇÃO GERENCIAL PARA NUTRIÇÃO</Typography>
@@ -773,7 +745,7 @@ const PlanoID = () => {
               </Typography>
             )}
           </>
-        </div> 
+        </div>
       </div>
     </>
   )

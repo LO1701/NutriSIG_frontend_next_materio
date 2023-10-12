@@ -30,7 +30,7 @@ import {
   CardContent,
   CardActions,
 } from '@mui/material';
-import AccountPlusOutline from 'mdi-material-ui/AccountPlusOutline'
+import ArrowLeftCircle from 'mdi-material-ui/ArrowLeftCircle'
 import Nutrition from 'mdi-material-ui/Nutrition'
 import ScaleBathroom from 'mdi-material-ui/ScaleBathroom'
 import PencilBoxMultiple from 'mdi-material-ui/PencilBoxMultiple'
@@ -130,6 +130,10 @@ const Perfil = () => {
 
   return (
     <>
+      <IconButton size='small' sx={{ marginBottom: 4 }} onClick={() => { router.push(`http://localhost:3000/pacientes/${pacienteID}`) }}>
+        <ArrowLeftCircle sx={{ marginRight: 2, fontSize: '1.375rem', }} />
+        Informações iniciais
+      </IconButton>
       <Grid container spacing={6}>
         <Grid item xs={12} sm={6}>
           <Card>
@@ -172,9 +176,9 @@ const Perfil = () => {
             </CardContent>
             <CardActions className='card-action-dense' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
               {anamnese?.length > 0 ? (
-                <Button onClick={() => { window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese/${anamnese[0]?.id}`) }}>Editar</Button>
+                <Button onClick={() => { router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese/${anamnese[0]?.id}`) }}>Editar</Button>
               ) : (
-                <Button onClick={() => { window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese`) }}>Adicionar</Button>
+                <Button onClick={() => { router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese`) }}>Adicionar</Button>
               )}
             </CardActions>
           </Card>
@@ -216,7 +220,7 @@ const Perfil = () => {
             <Typography variant="h5" gutterBottom>
               Medidas Antropométricas
             </Typography>
-            <Button variant="contained" onClick={() => console.log('oi')}>
+            <Button variant="contained" onClick={() => { router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/medida`) }}>
               <ScaleBathroom sx={{ marginRight: 1, fontSize: '1.375rem', marginBottom: 1 }} />
               Adicionar
             </Button>
@@ -258,7 +262,7 @@ const Perfil = () => {
                           {row.imc_atual}
                         </TableCell>
                         <TableCell align="center">
-                          <IconButton size='small' onClick={() => { router.push(`${paciente?.id}/consulta/${row.id}/perfil`) }}>
+                          <IconButton size='small' onClick={() => { router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/medida/${row.id}`) }}>
                             <PencilBoxMultiple />
                           </IconButton>
                         </TableCell>
@@ -293,12 +297,10 @@ const Perfil = () => {
             <Typography variant="h5" gutterBottom>
               Plano Alimentar
             </Typography>
-            <Link href={`/pacientes/${pacienteID}/consulta/${consultaID}/planoAlimentar`} passHref legacyBehavior>
-              <Button variant="contained">
-                <Nutrition sx={{ marginRight: 1, fontSize: '1.375rem', marginBottom: 1 }} />
-                Adicionar
-              </Button>
-            </Link>
+            <Button variant="contained" onClick={() => { router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/planoAlimentar`) }}>
+              <Nutrition sx={{ marginRight: 1, fontSize: '1.375rem', marginBottom: 1 }} />
+              Adicionar
+            </Button>
           </Stack>
 
           {planoAlimentar?.length > 0 ? (
@@ -333,7 +335,7 @@ const Perfil = () => {
                           {row.teto_kcal}
                         </TableCell>
                         <TableCell align="center">
-                          <IconButton size='small' onClick={() => { window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/planoAlimentar/${row.id}`) }}>
+                          <IconButton size='small' onClick={() => { router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/planoAlimentar/${row.id}`) }}>
                             <PencilBoxMultiple />
                           </IconButton>
                         </TableCell>

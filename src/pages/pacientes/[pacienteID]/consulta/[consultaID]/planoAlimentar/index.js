@@ -50,6 +50,8 @@ import 'dayjs/locale/en-gb';
 
 // ** import Select
 import { useRouter } from 'next/router'
+import { IconButton } from '@mui/material'
+import { ArrowLeftCircle } from 'mdi-material-ui'
 
 
 // ** Styles
@@ -73,7 +75,7 @@ const TabName = styled('span')(({ theme }) => ({
 
 // Notificação
 const Alert = forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} sx={{ width: '100%', backgroundColor: '#10B981', color:'#FFF' }}/>;
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} sx={{ width: '100%', backgroundColor: '#10B981', color: '#FFF' }} />;
 });
 
 const NovoPlanoAlimentar = () => {
@@ -104,32 +106,32 @@ const NovoPlanoAlimentar = () => {
 
   const criaPlanoAlimentar = async (values) => {
     const endPoint = `paciente/${pacienteID}/consulta/${consultaID}/plano`
-  
+
     const resposta = await api.postInformation(endPoint, values)
-  
+
     return resposta
   }
 
   // Formik
   const formik = useFormik({
     initialValues: {
-        nome: '',
-        teto_kcal: '',
-        validade: '',
-        submit: null
+      nome: '',
+      teto_kcal: '',
+      validade: '',
+      submit: null
     },
     enableReinitialize: true,
     validationSchema: Yup.object({
       nome: Yup
-      .string()
-      .max(255)
-      .required('Nome é obrigatório'),
+        .string()
+        .max(255)
+        .required('Nome é obrigatório'),
       teto_kcal: Yup
-      .number()
-      .required('Máximo Kcal é obrigatório'),
+        .number()
+        .required('Máximo Kcal é obrigatório'),
       validade: Yup
-      .string()
-      .required('Próxima consulta é obrigatório'),
+        .string()
+        .required('Próxima consulta é obrigatório'),
     }),
     onSubmit: async (values, helpers) => {
       try {
@@ -139,8 +141,8 @@ const NovoPlanoAlimentar = () => {
         setID(res.body.id)
         setOpen(true)
 
-        setTimeout(function() {
-          window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/planoAlimentar/${res.body.id}`)
+        setTimeout(function () {
+          router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/planoAlimentar/${res.body.id}`)
         }, 2000)
 
       } catch (err) {
@@ -152,106 +154,112 @@ const NovoPlanoAlimentar = () => {
   });
 
   return (
-    <Card>
-      <CardHeader title='Informações do plano alimentar' titleTypographyProps={{ variant: 'h6' }} />
+    <>
+      <IconButton size='small' sx={{ marginBottom: 4 }} onClick={() => { router.back() }}>
+        <ArrowLeftCircle sx={{ marginRight: 2, fontSize: '1.375rem', }} />
+        Perfil
+      </IconButton>
+      <Card>
+        <CardHeader title='Informações do Plano Alimentar' titleTypographyProps={{ variant: 'h6' }} />
         <CardContent>
-            <form noValidate autoComplete='off' onSubmit={formik.handleSubmit}>
-              <Grid container spacing={7}>
-                <Grid item xs={12} sm={4} sx={{ marginTop: 4.8}}>
-                  <TextField
-                    error={!!(formik.touched.nome && formik.errors.nome)}
-                    autoFocus 
-                    fullWidth
-                    helperText={formik.touched.nome && formik.errors.nome}
-                    id='nome' 
-                    label='Nome'
-                    placeholder='Nome'
-                    name='nome'
-                    type="text" 
-                    value={formik.values.nome}
-                    onBlur={formik.handleBlur}
-                    onChange={formik.handleChange}
-                    sx={{ marginBottom: 4 }} 
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <FormTextbox />
-                        </InputAdornment>
-                      )
-                    }}/>
-                </Grid>
+          <form noValidate autoComplete='off' onSubmit={formik.handleSubmit}>
+            <Grid container spacing={7}>
+              <Grid item xs={12} sm={4} sx={{ marginTop: 4.8 }}>
+                <TextField
+                  error={!!(formik.touched.nome && formik.errors.nome)}
+                  autoFocus
+                  fullWidth
+                  helperText={formik.touched.nome && formik.errors.nome}
+                  id='nome'
+                  label='Nome'
+                  placeholder='Nome'
+                  name='nome'
+                  type="text"
+                  value={formik.values.nome}
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  sx={{ marginBottom: 4 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <FormTextbox />
+                      </InputAdornment>
+                    )
+                  }} />
+              </Grid>
 
-                <Grid item xs={12} sm={4} sx={{ marginTop: 4.8}}>
-                  <TextField
-                    error={!!(formik.touched.teto_kcal && formik.errors.teto_kcal)}
-                    autoFocus 
-                    fullWidth
-                    helperText={formik.touched.teto_kcal && formik.errors.teto_kcal}
-                    id='teto_kcal' 
-                    label='Quantidade máxima de Kcal'
-                    placeholder='2000'
-                    name='teto_kcal'
-                    type="number" 
-                    value={formik.values.teto_kcal}
-                    onBlur={formik.handleBlur}
-                    onChange={formik.handleChange}
-                    sx={{ marginBottom: 4 }} 
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <CardTextOutline />
-                        </InputAdornment>
-                      )
-                    }}/>
-                </Grid>
+              <Grid item xs={12} sm={4} sx={{ marginTop: 4.8 }}>
+                <TextField
+                  error={!!(formik.touched.teto_kcal && formik.errors.teto_kcal)}
+                  autoFocus
+                  fullWidth
+                  helperText={formik.touched.teto_kcal && formik.errors.teto_kcal}
+                  id='teto_kcal'
+                  label='Quantidade máxima de Kcal'
+                  placeholder='2000'
+                  name='teto_kcal'
+                  type="number"
+                  value={formik.values.teto_kcal}
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  sx={{ marginBottom: 4 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <CardTextOutline />
+                      </InputAdornment>
+                    )
+                  }} />
+              </Grid>
 
-                <Grid item xs={12} sm={4} sx={{ marginTop: 4.8}}>
-                    <TextField
-                        error={!!(formik.touched.validade && formik.errors.validade)}
-                        autoFocus 
-                        fullWidth
-                        helperText={formik.touched.validade && formik.errors.validade}
-                        id="validade" 
-                        name="validade"
-                        type="date" 
-                        label="Validade"
-                        placeholder=""
-                        value={formik.values.validade}
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        sx={{ marginBottom: 4 }} 
-                        InputProps={{
-                            startAdornment: (
-                            <InputAdornment position="start">
-                                <CalendarRange />
-                            </InputAdornment>
-                            )
-                    }}/>
-                </Grid>
+              <Grid item xs={12} sm={4} sx={{ marginTop: 4.8 }}>
+                <TextField
+                  error={!!(formik.touched.validade && formik.errors.validade)}
+                  autoFocus
+                  fullWidth
+                  helperText={formik.touched.validade && formik.errors.validade}
+                  id="validade"
+                  name="validade"
+                  type="date"
+                  label="Validade"
+                  placeholder=""
+                  value={formik.values.validade}
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  sx={{ marginBottom: 4 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <CalendarRange />
+                      </InputAdornment>
+                    )
+                  }} />
+              </Grid>
 
-                {formik.errors.submit && (
-                  <Snackbar open={open} autoHideDuration={12000000} onClose={handleClose}>
-                    <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
-                      {formik.errors.submit}
-                    </Alert>
-                  </Snackbar>
-                )}
-
-                <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-                  <Alert onClose={handleClose} >
-                    {resposta}
+              {formik.errors.submit && (
+                <Snackbar open={open} autoHideDuration={12000000} onClose={handleClose}>
+                  <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                    {formik.errors.submit}
                   </Alert>
                 </Snackbar>
-                
-                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button variant='contained' type='submit'>
-                      Salvar
-                    </Button>
-                </Grid>
+              )}
+
+              <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+                <Alert onClose={handleClose} >
+                  {resposta}
+                </Alert>
+              </Snackbar>
+
+              <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button variant='contained' type='submit'>
+                  Salvar
+                </Button>
               </Grid>
-            </form>
+            </Grid>
+          </form>
         </CardContent>
-    </Card>
+      </Card>
+    </>
   )
 }
 

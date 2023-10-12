@@ -34,157 +34,165 @@ import 'dayjs/locale/en-gb';
 
 // ** import Select
 import { useRouter } from 'next/router'
+import { IconButton } from '@mui/material'
+import { ArrowLeftCircle } from 'mdi-material-ui'
 
 // Notificação
 const Alert = forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} sx={{ width: '100%', backgroundColor: '#10B981', color:'rgba(231, 227, 252, 0.87)' }}/>;
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} sx={{ width: '100%', backgroundColor: '#10B981', color: 'rgba(231, 227, 252, 0.87)' }} />;
 });
 
 const NovaConsulta = () => {
 
-    const router = useRouter()
+  const router = useRouter()
 
-    const pacienteID = router.query.pacienteID
+  const pacienteID = router.query.pacienteID
 
-    // ** State
-    const [value, setValue] = useState('account')
-    const [open, setOpen] = useState(false)
-    const [resposta, setResposta] = useState()
+  // ** State
+  const [value, setValue] = useState('account')
+  const [open, setOpen] = useState(false)
+  const [resposta, setResposta] = useState()
 
-    const handleChange = (event, newValue) => {
-      setValue(newValue)
+  const handleChange = (event, newValue) => {
+    setValue(newValue)
+  }
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
     }
 
-    const handleClose = (event, reason) => {
-      if (reason === 'clickaway') {
-        return;
-      }
+    setOpen(false);
+  };
 
-      setOpen(false);
-    };
+  const criaConsulta = async (values, id_paciente) => {
+    const endPoint = `paciente/${id_paciente}/consulta`
 
-    const criaConsulta = async (values, id_paciente) => {
-      const endPoint = `paciente/${id_paciente}/consulta`
-    
-      const resposta = await api.postInformation(endPoint, values)
-    
-      return resposta
-    }
+    const resposta = await api.postInformation(endPoint, values)
 
-    // Formik
-    const formik = useFormik({
-      initialValues: {
-          nome: '',
-          data_atendimento: '',
-          submit: null
-      },
-      enableReinitialize: true,
-      validationSchema: Yup.object({
-        nome: Yup
+    return resposta
+  }
+
+  // Formik
+  const formik = useFormik({
+    initialValues: {
+      nome: '',
+      data_atendimento: '',
+      submit: null
+    },
+    enableReinitialize: true,
+    validationSchema: Yup.object({
+      nome: Yup
         .string()
         .max(255)
         .required('Nome é obrigatória'),
-        data_atendimento: Yup
+      data_atendimento: Yup
         .string()
         .required('Data de atendimento é obrigatório'),
-      }),
-      onSubmit: async (values, helpers) => {
-        try {
-          const res = await criaConsulta(values, pacienteID)
-          // console.log(res.body.id)
+    }),
+    onSubmit: async (values, helpers) => {
+      try {
+        const res = await criaConsulta(values, pacienteID)
+        // console.log(res.body.id)
 
-          setResposta(res.body.msg)
-          setOpen(true)
+        setResposta(res.body.msg)
+        setOpen(true)
 
-          setTimeout(function() {
-            window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${res.body.id}/perfil`)
-          }, 2000)
+        setTimeout(function () {
+          window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${res.body.id}/perfil`)
+        }, 2000)
 
-        } catch (err) {
-          helpers.setStatus({ success: false });
-          helpers.setErrors({ submit: err.message });
-          helpers.setSubmitting(false);
-        }
+      } catch (err) {
+        helpers.setStatus({ success: false });
+        helpers.setErrors({ submit: err.message });
+        helpers.setSubmitting(false);
       }
-    });
+    }
+  });
 
   return (
-    <Card>
-      <CardHeader title='Nova Consulta' titleTypographyProps={{ variant: 'h6' }} />
+    <>
+      <IconButton size='small' sx={{ marginBottom: 4 }} onClick={() => { router.back() }}>
+        <ArrowLeftCircle sx={{ marginRight: 2, fontSize: '1.375rem', }} />
+        Informações iniciais
+      </IconButton>
+      <Card>
+        <CardHeader title='Nova Consulta' titleTypographyProps={{ variant: 'h6' }} />
         <CardContent>
-            <form noValidate autoComplete='off' onSubmit={formik.handleSubmit}>
-              <Grid container spacing={7}>
-                <Grid item xs={12} sm={6} sx={{ marginTop: 4.8}}>
-                  <TextField
-                    error={!!(formik.touched.nome && formik.errors.nome)}
-                    autoFocus 
-                    fullWidth
-                    helperText={formik.touched.nome && formik.errors.nome}
-                    id='nome' 
-                    label='Nome'
-                    placeholder='Nome'
-                    name='nome'
-                    type="text" 
-                    value={formik.values.nome}
-                    onBlur={formik.handleBlur}
-                    onChange={formik.handleChange}
-                    sx={{ marginBottom: 4 }} 
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <AccountOutline />
-                        </InputAdornment>
-                      )
-                    }}/>
-                </Grid>
+          <form noValidate autoComplete='off' onSubmit={formik.handleSubmit}>
+            <Grid container spacing={7}>
+              <Grid item xs={12} sm={6} sx={{ marginTop: 4.8 }}>
+                <TextField
+                  error={!!(formik.touched.nome && formik.errors.nome)}
+                  autoFocus
+                  fullWidth
+                  helperText={formik.touched.nome && formik.errors.nome}
+                  id='nome'
+                  label='Nome'
+                  placeholder='Nome'
+                  name='nome'
+                  type="text"
+                  value={formik.values.nome}
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  sx={{ marginBottom: 4 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <AccountOutline />
+                      </InputAdornment>
+                    )
+                  }} />
+              </Grid>
 
-                <Grid item xs={12} sm={6} sx={{ marginTop: 4.8}}>
-                  <TextField
-                    error={!!(formik.touched.data_atendimento && formik.errors.data_atendimento)}
-                    autoFocus 
-                    fullWidth
-                    helperText={formik.touched.data_atendimento && formik.errors.data_atendimento}
-                    id='data_atendimento' 
-                    name='data_atendimento'
-                    type="date" 
-                    label='Data de atendimento'
-                    placeholder=''
-                    value={formik.values.data_atendimento}
-                    onBlur={formik.handleBlur}
-                    onChange={formik.handleChange}
-                    sx={{ marginBottom: 4 }} 
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <CalendarRange />
-                        </InputAdornment>
-                      )
-                    }}/>
-                </Grid>
+              <Grid item xs={12} sm={6} sx={{ marginTop: 4.8 }}>
+                <TextField
+                  error={!!(formik.touched.data_atendimento && formik.errors.data_atendimento)}
+                  autoFocus
+                  fullWidth
+                  helperText={formik.touched.data_atendimento && formik.errors.data_atendimento}
+                  id='data_atendimento'
+                  name='data_atendimento'
+                  type="date"
+                  label='Data de atendimento'
+                  placeholder=''
+                  value={formik.values.data_atendimento}
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  sx={{ marginBottom: 4 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <CalendarRange />
+                      </InputAdornment>
+                    )
+                  }} />
+              </Grid>
 
-                {formik.errors.submit && (
-                  <Snackbar open={open} autoHideDuration={12000000} onClose={handleClose}>
-                    <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
-                      {formik.errors.submit}
-                    </Alert>
-                  </Snackbar>
-                )}
-
-                <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-                  <Alert onClose={handleClose} >
-                    {resposta}
+              {formik.errors.submit && (
+                <Snackbar open={open} autoHideDuration={12000000} onClose={handleClose}>
+                  <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                    {formik.errors.submit}
                   </Alert>
                 </Snackbar>
-                
-                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button variant='contained' type='submit'>
-                        Salvar
-                    </Button>
-                </Grid>
+              )}
+
+              <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+                <Alert onClose={handleClose} >
+                  {resposta}
+                </Alert>
+              </Snackbar>
+
+              <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button variant='contained' type='submit'>
+                  Salvar
+                </Button>
               </Grid>
-            </form>
+            </Grid>
+          </form>
         </CardContent>
-    </Card>
+      </Card>
+    </>
   )
 }
 

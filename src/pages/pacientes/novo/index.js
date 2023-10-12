@@ -59,6 +59,8 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { useRouter } from 'next/router'
+import { IconButton } from '@mui/material'
+import { ArrowLeftCircle } from 'mdi-material-ui'
 
 
 
@@ -83,165 +85,170 @@ const TabName = styled('span')(({ theme }) => ({
 
 // Notificação
 const Alert = forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} sx={{ width: '100%', backgroundColor: '#10B981', color:'#FFF' }}/>;
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} sx={{ width: '100%', backgroundColor: '#10B981', color: '#FFF' }} />;
 });
 
 const NovoPaciente = () => {
 
-    const auth = useAuth()
-    const router = useRouter()
+  const auth = useAuth()
+  const router = useRouter()
 
-    // ** State
-    const [value, setValue] = useState('account')
-    const [open, setOpen] = useState(false);
-    const [resposta, setResposta] = useState();
-    const [id, setID] = useState();
+  // ** State
+  const [value, setValue] = useState('account')
+  const [open, setOpen] = useState(false);
+  const [resposta, setResposta] = useState();
+  const [id, setID] = useState();
 
-    const handleChange = (event, newValue) => {
-      setValue(newValue)
+  const handleChange = (event, newValue) => {
+    setValue(newValue)
+  }
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
     }
 
-    const handleClose = (event, reason) => {
-      if (reason === 'clickaway') {
-        return;
-      }
+    setOpen(false);
+  };
 
-      setOpen(false);
-    };
+  const criaPaciente = async (values) => {
+    const endPoint = `${auth.user.id}/paciente`
 
-    const criaPaciente = async (values) => {
-      const endPoint = `${auth.user.id}/paciente`
-    
-      const resposta = await api.postInformation(endPoint, values)
-    
-      return resposta
-    }
+    const resposta = await api.postInformation(endPoint, values)
 
-    // Formik
-    const formik = useFormik({
-      initialValues: {
-          nome: '',
-          email: '',
-          data_nascimento: '',
-          sexo: '',
-          n_cns: '',
-          ubs: '',
-          telefone: '',
-          cpf: '',
-          submit: null
-      },
-      enableReinitialize: true,
-      validationSchema: Yup.object({
-        nome: Yup
+    return resposta
+  }
+
+  // Formik
+  const formik = useFormik({
+    initialValues: {
+      nome: '',
+      email: '',
+      data_nascimento: '',
+      sexo: '',
+      n_cns: '',
+      ubs: '',
+      telefone: '',
+      cpf: '',
+      submit: null
+    },
+    enableReinitialize: true,
+    validationSchema: Yup.object({
+      nome: Yup
         .string()
         .max(255)
         .required('Nome é obrigatória'),
-        email: Yup
+      email: Yup
         .string()
         .email('Email inválido')
         .max(255)
         .required('Email é obrigatório'),
-        data_nascimento: Yup
+      data_nascimento: Yup
         .string()
         .required('Data de nascimento é obrigatório'),
-        sexo: Yup
+      sexo: Yup
         .string()
         .required('Sexo é obrigatório'),
-        n_cns: Yup
+      n_cns: Yup
         .string()
         .max(15)
         .required('Cartão Nacional de Saúde é obrigatório'),
-        ubs: Yup
+      ubs: Yup
         .string()
         .max(15)
         .required('Telefone é obrigatório'),
-        telefone: Yup
+      telefone: Yup
         .string()
         .max(15)
         .required('Telefone é obrigatório'),
-        cpf: Yup
+      cpf: Yup
         .string()
         .max(15)
         .required('CPF é obrigatório'),
-      }),
-      onSubmit: async (values, helpers) => {
-        try {
-          const res = await criaPaciente(values)
-          console.log(res.body.id)
+    }),
+    onSubmit: async (values, helpers) => {
+      try {
+        const res = await criaPaciente(values)
+        console.log(res.body.id)
 
-          setResposta(res.body.msg)
-          setID(res.body.id)
-          setOpen(true)
+        setResposta(res.body.msg)
+        setID(res.body.id)
+        setOpen(true)
 
-          setTimeout(function() {
-            window.location.replace(`http://localhost:3000/pacientes/${res.body.id}`)
-          }, 2000)
+        setTimeout(function () {
+          window.location.replace(`http://localhost:3000/pacientes/${res.body.id}`)
+        }, 2000)
 
 
-          // window.location.reload(true)  
-        } catch (err) {
-          helpers.setStatus({ success: false });
-          helpers.setErrors({ submit: err.message });
-          helpers.setSubmitting(false);
-        }
+        // window.location.reload(true)  
+      } catch (err) {
+        helpers.setStatus({ success: false });
+        helpers.setErrors({ submit: err.message });
+        helpers.setSubmitting(false);
       }
-    });
+    }
+  });
 
   return (
-    <Card>
-      <CardHeader title='Informações pessoais do paciente' titleTypographyProps={{ variant: 'h6' }} />
+    <>
+      <IconButton size='small' sx={{ marginBottom: 4 }} onClick={() => { router.back() }}>
+        <ArrowLeftCircle sx={{ marginRight: 2, fontSize: '1.375rem', }} />
+        Lista de Pacientes
+      </IconButton>
+      <Card>
+        <CardHeader title='Informações pessoais do paciente' titleTypographyProps={{ variant: 'h6' }} />
         <CardContent>
-            <form noValidate autoComplete='off' onSubmit={formik.handleSubmit}>
-              <Grid container spacing={7}>
-                <Grid item xs={12} sm={6} sx={{ marginTop: 4.8}}>
-                  <TextField
-                    error={!!(formik.touched.nome && formik.errors.nome)}
-                    autoFocus 
-                    fullWidth
-                    helperText={formik.touched.nome && formik.errors.nome}
-                    id='nome' 
-                    label='Nome'
-                    placeholder='Nome'
-                    name='nome'
-                    type="text" 
-                    value={formik.values.nome}
-                    onBlur={formik.handleBlur}
-                    onChange={formik.handleChange}
-                    sx={{ marginBottom: 4 }} 
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <AccountOutline />
-                        </InputAdornment>
-                      )
-                    }}/>
-                </Grid>
+          <form noValidate autoComplete='off' onSubmit={formik.handleSubmit}>
+            <Grid container spacing={7}>
+              <Grid item xs={12} sm={6} sx={{ marginTop: 4.8 }}>
+                <TextField
+                  error={!!(formik.touched.nome && formik.errors.nome)}
+                  autoFocus
+                  fullWidth
+                  helperText={formik.touched.nome && formik.errors.nome}
+                  id='nome'
+                  label='Nome'
+                  placeholder='Nome'
+                  name='nome'
+                  type="text"
+                  value={formik.values.nome}
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  sx={{ marginBottom: 4 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <AccountOutline />
+                      </InputAdornment>
+                    )
+                  }} />
+              </Grid>
 
-                <Grid item xs={12} sm={6} sx={{ marginTop: 4.8}}>
-                  <TextField
-                    error={!!(formik.touched.email && formik.errors.email)}
-                    autoFocus 
-                    fullWidth
-                    helperText={formik.touched.email && formik.errors.email}
-                    id='email' 
-                    label='Email'
-                    placeholder='email@example.com'
-                    name='email'
-                    type="email" 
-                    value={formik.values.email}
-                    onBlur={formik.handleBlur}
-                    onChange={formik.handleChange}
-                    sx={{ marginBottom: 4 }} 
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <EmailOutline />
-                        </InputAdornment>
-                      )
-                    }}/>
-                </Grid>
+              <Grid item xs={12} sm={6} sx={{ marginTop: 4.8 }}>
+                <TextField
+                  error={!!(formik.touched.email && formik.errors.email)}
+                  autoFocus
+                  fullWidth
+                  helperText={formik.touched.email && formik.errors.email}
+                  id='email'
+                  label='Email'
+                  placeholder='email@example.com'
+                  name='email'
+                  type="email"
+                  value={formik.values.email}
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  sx={{ marginBottom: 4 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <EmailOutline />
+                      </InputAdornment>
+                    )
+                  }} />
+              </Grid>
 
-                <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6}>
                 {/* <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb" components={['DatePicker']}>
                     <DatePicker 
                       label="Data de nascimento"
@@ -252,165 +259,166 @@ const NovoPaciente = () => {
                 </LocalizationProvider> */}
                 <TextField
                   error={!!(formik.touched.data_nascimento && formik.errors.data_nascimento)}
-                  autoFocus 
+                  autoFocus
                   fullWidth
                   helperText={formik.touched.data_nascimento && formik.errors.data_nascimento}
-                  id='data_nascimento' 
+                  id='data_nascimento'
                   name='data_nascimento'
-                  type="date" 
+                  type="date"
                   label='Data de Nascimento'
                   placeholder=''
                   value={formik.values.data_nascimento}
                   onBlur={formik.handleBlur}
                   onChange={formik.handleChange}
-                  sx={{ marginBottom: 4 }} 
+                  sx={{ marginBottom: 4 }}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position='start'>
                         <CalendarRange />
                       </InputAdornment>
                     )
-                  }}/>
-                </Grid>
+                  }} />
+              </Grid>
 
-                <Grid item xs={12} sm={6} >
-                  <FormControl fullWidth>
-                    <InputLabel id="demo-simple-select-label">Sexo</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id='sexo' 
-                      name='sexo'
-                      type="select" 
-                      label='Sexo'
-                      placeholder=''
-                      value={formik.values.sexo}
-                      onChange={formik.handleChange}
-                    >
-                      <MenuItem value={'Feminino'}>Feminino</MenuItem>
-                      <MenuItem value={'Masculino'}>Masculino</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    error={!!(formik.touched.n_cns && formik.errors.n_cns)}
-                    autoFocus 
-                    fullWidth
-                    helperText={formik.touched.n_cns && formik.errors.n_cns}
-                    id='n_cns' 
-                    label='Cartão Nacional de Saúde'
-                    placeholder='xxxxxxxxxxxxxxx'
-                    name='n_cns'
-                    type="n_cns" 
-                    value={formik.values.n_cns}
-                    onBlur={formik.handleBlur}
+              <Grid item xs={12} sm={6} >
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label">Sexo</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id='sexo'
+                    name='sexo'
+                    type="select"
+                    label='Sexo'
+                    placeholder=''
+                    value={formik.values.sexo}
                     onChange={formik.handleChange}
-                    sx={{ marginBottom: 4 }} 
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <CardBulletedOutline />
-                        </InputAdornment>
-                      )
-                    }}/>
-                </Grid>
+                  >
+                    <MenuItem value={'Feminino'}>Feminino</MenuItem>
+                    <MenuItem value={'Masculino'}>Masculino</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
 
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    error={!!(formik.touched.ubs && formik.errors.ubs)}
-                    autoFocus 
-                    fullWidth
-                    helperText={formik.touched.ubs && formik.errors.ubs}
-                    id='ubs' 
-                    label='Unidade Básica de Saúde'
-                    placeholder='xx'
-                    name='ubs'
-                    type="ubs" 
-                    value={formik.values.ubs}
-                    onBlur={formik.handleBlur}
-                    onChange={formik.handleChange}
-                    sx={{ marginBottom: 4 }} 
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <Home />
-                        </InputAdornment>
-                      )
-                    }}/>
-                </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  error={!!(formik.touched.n_cns && formik.errors.n_cns)}
+                  autoFocus
+                  fullWidth
+                  helperText={formik.touched.n_cns && formik.errors.n_cns}
+                  id='n_cns'
+                  label='Cartão Nacional de Saúde'
+                  placeholder='xxxxxxxxxxxxxxx'
+                  name='n_cns'
+                  type="n_cns"
+                  value={formik.values.n_cns}
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  sx={{ marginBottom: 4 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <CardBulletedOutline />
+                      </InputAdornment>
+                    )
+                  }} />
+              </Grid>
 
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    error={!!(formik.touched.telefone && formik.errors.telefone)}
-                    autoFocus 
-                    fullWidth
-                    helperText={formik.touched.telefone && formik.errors.telefone}
-                    id='telefone' 
-                    label='Telefone'
-                    placeholder='(xx) 0000-0000'
-                    name='telefone'
-                    type="telefone" 
-                    value={formik.values.telefone}
-                    onBlur={formik.handleBlur}
-                    onChange={formik.handleChange}
-                    sx={{ marginBottom: 4 }} 
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <Cellphone />
-                        </InputAdornment>
-                      )
-                    }}/>
-                </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  error={!!(formik.touched.ubs && formik.errors.ubs)}
+                  autoFocus
+                  fullWidth
+                  helperText={formik.touched.ubs && formik.errors.ubs}
+                  id='ubs'
+                  label='Unidade Básica de Saúde'
+                  placeholder='xx'
+                  name='ubs'
+                  type="ubs"
+                  value={formik.values.ubs}
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  sx={{ marginBottom: 4 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <Home />
+                      </InputAdornment>
+                    )
+                  }} />
+              </Grid>
 
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    error={!!(formik.touched.cpf && formik.errors.cpf)}
-                    autoFocus 
-                    fullWidth
-                    helperText={formik.touched.cpf && formik.errors.cpf}
-                    id='cpf' 
-                    label='CPF'
-                    placeholder='00000000000'
-                    name='cpf'
-                    type="cpf" 
-                    value={formik.values.cpf}
-                    onBlur={formik.handleBlur}
-                    onChange={formik.handleChange}
-                    sx={{ marginBottom: 4 }} 
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <CardAccountDetailsOutline />
-                        </InputAdornment>
-                      )
-                    }}/>
-                </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  error={!!(formik.touched.telefone && formik.errors.telefone)}
+                  autoFocus
+                  fullWidth
+                  helperText={formik.touched.telefone && formik.errors.telefone}
+                  id='telefone'
+                  label='Telefone'
+                  placeholder='(xx) 0000-0000'
+                  name='telefone'
+                  type="telefone"
+                  value={formik.values.telefone}
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  sx={{ marginBottom: 4 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <Cellphone />
+                      </InputAdornment>
+                    )
+                  }} />
+              </Grid>
 
-                {formik.errors.submit && (
-                  <Snackbar open={open} autoHideDuration={12000000} onClose={handleClose}>
-                    <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
-                      {formik.errors.submit}
-                    </Alert>
-                  </Snackbar>
-                )}
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  error={!!(formik.touched.cpf && formik.errors.cpf)}
+                  autoFocus
+                  fullWidth
+                  helperText={formik.touched.cpf && formik.errors.cpf}
+                  id='cpf'
+                  label='CPF'
+                  placeholder='00000000000'
+                  name='cpf'
+                  type="cpf"
+                  value={formik.values.cpf}
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  sx={{ marginBottom: 4 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <CardAccountDetailsOutline />
+                      </InputAdornment>
+                    )
+                  }} />
+              </Grid>
 
-                <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-                  <Alert onClose={handleClose} >
-                    {resposta}
+              {formik.errors.submit && (
+                <Snackbar open={open} autoHideDuration={12000000} onClose={handleClose}>
+                  <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                    {formik.errors.submit}
                   </Alert>
                 </Snackbar>
-                
-                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button variant='contained' type='submit'>
-                      Salvar
-                    </Button>
-                </Grid>
+              )}
+
+              <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+                <Alert onClose={handleClose} >
+                  {resposta}
+                </Alert>
+              </Snackbar>
+
+              <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button variant='contained' type='submit'>
+                  Salvar
+                </Button>
               </Grid>
-            </form>
+            </Grid>
+          </form>
         </CardContent>
-    </Card>
+      </Card>
+    </>
   )
 }
 
