@@ -176,7 +176,7 @@ const NovoPaciente = () => {
         setOpen(true)
 
         setTimeout(function () {
-          window.location.replace(`http://localhost:3000/pacientes/${res.body.id}`)
+          router.push(`http://localhost:3000/pacientes/${res.body.id}`)
         }, 2000)
 
 
@@ -191,7 +191,7 @@ const NovoPaciente = () => {
 
   return (
     <>
-      <IconButton size='small' sx={{ marginBottom: 4 }} onClick={() => { router.back() }}>
+      <IconButton size='small' sx={{ marginBottom: 4 }} onClick={() => { router.push(`http://localhost:3000/pacientes`) }}>
         <ArrowLeftCircle sx={{ marginRight: 2, fontSize: '1.375rem', }} />
         Lista de Pacientes
       </IconButton>

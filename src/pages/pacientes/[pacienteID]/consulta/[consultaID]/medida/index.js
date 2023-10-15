@@ -171,7 +171,7 @@ const Medida = () => {
 
     return (
         <>
-            <IconButton size='small' sx={{ marginBottom: 4 }} onClick={() => { router.back() }}>
+            <IconButton size='small' sx={{ marginBottom: 4 }} onClick={() => { router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/perfil`) }}>
                 <ArrowLeftCircle sx={{ marginRight: 2, fontSize: '1.375rem', }} />
                 Perfil
             </IconButton>

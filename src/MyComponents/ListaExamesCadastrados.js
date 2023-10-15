@@ -13,22 +13,11 @@ import CardHeader from '@mui/material/CardHeader'
 
 // ** Icons Imports
 import HumanMaleHeight from 'mdi-material-ui/HumanMaleHeight'
-import ListStatus from 'mdi-material-ui/ListStatus'
-import CardBulletedOutline from 'mdi-material-ui/CardBulletedOutline'
-import WeightKilogram from 'mdi-material-ui/WeightKilogram'
-import Home from 'mdi-material-ui/Home'
-import Cellphone from 'mdi-material-ui/Cellphone'
-import CardAccountDetailsOutline from 'mdi-material-ui/CardAccountDetailsOutline'
-
-// ** Demo Tabs Imports
-import TabInfo from '../../../../../../views/account-settings/TabInfo'
-import TabAccount from '../../../../../../views/account-settings/TabAccount'
-import TabSecurity from '../../../../../../views/account-settings/TabSecurity'
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
-import { tokenService } from '../../../../../../services/auth/tokenService'
-import { useAuth } from '../../../../../../@core/hooks/useAuth'
+import { tokenService } from '../services/auth/tokenService'
+import { useAuth } from '../@core/hooks/useAuth'
 
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
@@ -39,25 +28,19 @@ import Button from '@mui/material/Button'
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import InputAdornment from '@mui/material/InputAdornment';
+import FileSign from 'mdi-material-ui/FileSign'
 
 // ** Foormik and yup Imports
 import { useFormik } from 'formik'
 import * as Yup from 'yup';
 
 // ** Api Import
-import { api } from '../../../../../../services/api/api'
+import { api } from '../services/api/api'
 
 // ** x-date-pickers (Componente de data)
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import 'dayjs/locale/en-gb';
 
 // ** import Select
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
 import { useRouter } from 'next/router'
 import { IconButton } from '@mui/material'
 import { ArrowLeftCircle } from 'mdi-material-ui'
@@ -88,7 +71,7 @@ const Alert = forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} sx={{ width: '100%', backgroundColor: '#10B981', color: '#FFF' }} />;
 });
 
-const Exame = () => {
+const ListaExamesCadastrados = ({id, nome, observacoes}) => {
 
     const auth = useAuth()
     const router = useRouter()
@@ -113,10 +96,10 @@ const Exame = () => {
         setOpen(false);
     };
 
-    const criaExame = async (values) => {
-        const endPoint = `paciente/consulta/${consultaID}/exame`
+    const atualizaExame = async (values) => {
+        const endPoint = `paciente/consulta/${consultaID}/exame/${id}`
 
-        const resposta = await api.postInformation(endPoint, values)
+        const resposta = await api.putInformation(endPoint, values)
 
         return resposta
     }
@@ -124,8 +107,8 @@ const Exame = () => {
     // Formik
     const formik = useFormik({
         initialValues: {
-            nome: '',
-            observacoes: '',
+            nome: nome,
+            observacoes: observacoes,
             submit: null
         },
         enableReinitialize: true,
@@ -139,10 +122,10 @@ const Exame = () => {
         }),
         onSubmit: async (values, helpers) => {
             try {
-                const resposta = await criaExame(values)
+                const resposta = await atualizaExame(values)
 
                 if (resposta.ok === true) {
-                    setResposta('Exame adicionado com sucesso')
+                    setResposta('Exame atualizado com sucesso')
                 } else {
                     setResposta('Erro ao criar a consulta')
                 }
@@ -150,7 +133,7 @@ const Exame = () => {
                 setOpen(true)
 
                 setTimeout(function () {
-                    router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/exame/todosExames`)
+                    router.reload(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/exame/todosExames`)
                 }, 2000)
 
             } catch (err) {
@@ -163,12 +146,7 @@ const Exame = () => {
 
     return (
         <>
-            <IconButton size='small' sx={{ marginBottom: 4 }} onClick={() => { router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/perfil`) }}>
-                <ArrowLeftCircle sx={{ marginRight: 2, fontSize: '1.375rem', }} />
-                Perfil
-            </IconButton>
-            <Card>
-                <CardHeader title='Informações sobre Exames Laboratoriais' titleTypographyProps={{ variant: 'h6' }} />
+            <Card sx={{marginBottom: 5}}>
                 <CardContent>
                     <form noValidate autoComplete='off' onSubmit={formik.handleSubmit}>
                         <Grid container spacing={7}>
@@ -190,7 +168,7 @@ const Exame = () => {
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position='start'>
-                                                <HumanMaleHeight />
+                                                <FileSign />
                                             </InputAdornment>
                                         )
                                     }} />
@@ -243,7 +221,7 @@ const Exame = () => {
     )
 }
 
-export default Exame
+export default ListaExamesCadastrados
 
 export const getServerSideProps = async (ctx) => {
     const token = tokenService.get(ctx);

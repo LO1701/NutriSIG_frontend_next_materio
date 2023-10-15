@@ -63,6 +63,7 @@ import Head from 'next/head'
 import imagemLogo from '../../../../../../img/wepik-duotone-modern-healthy-organic-food-logo-20230626195207HvXd.png'
 import Image from 'next/image'
 import ListaAlimentosCadastradosImpressao from '../../../../../../MyComponents/ListaAlimentosCadastradosImpressao'
+import CardInformacoesNutricionais from '../../../../../../MyComponents/CardInformacoesNutricionais'
 
 const PlanoID = () => {
 
@@ -97,8 +98,8 @@ const PlanoID = () => {
   const [gramas, setGramas] = useState()
   const [observacoes, setObservacoes] = useState()
 
-  // States dos alimentos cadastrados
-  const [alimentoCadastrado, setAlimentoCadastrado] = useState(null)
+  // States dos alimentos cadastrados nas refeicoes
+  const [alimentoRefeicao, setAlimentoRefeicao] = useState([])
 
   // Notificação
   const Alert = forwardRef(function Alert(props, ref) {
@@ -134,13 +135,19 @@ const PlanoID = () => {
   function formataData(data) {
     const date = new Date(data)
     let dia = null
+    let mes = null
 
     if (date.getDate() < 10)
-      dia = `0${date.getDate()}`
+      dia = `0${date.getDate()+1}`
     else
-      dia = date.getDate()
+      dia = date.getDate()+1
 
-    const dataDeCriacao = `${dia}/0${date.getMonth() + 1}/${date.getFullYear()}`
+    if ((date.getMonth()+1) < 10)
+      mes = `0${date.getMonth()+1}`
+    else
+      mes = date.getMonth()+1
+
+    const dataDeCriacao = `${dia}/${mes}/${date.getFullYear()}`
 
     return dataDeCriacao
   }
@@ -161,12 +168,35 @@ const PlanoID = () => {
     const getRefeicoes = await buscaInformacoes(ctx, endPointRefeicoes)
     setRefeicoes(getRefeicoes.body)
 
-    console.log(getRefeicoes)
-
     // Busca todos os alimentos do select
     const endPointAlimentos = `${usuarioAutenticado.body.id}/alimento`
     const getAlimentos = await buscaInformacoes(ctx, endPointAlimentos)
     setAlimento(getAlimentos.body)
+
+    // Busca todos os alimentos das refeicoes
+    
+    getRefeicoes.body.forEach( async (element, index) => {
+      const endPointAlimentosRef = `plano/${planoAlimentarID}/refeicao/${element.id}/alimento/refeicaoAlimento`
+      const dadosKcal = []
+      let auxilioKcal = 0
+      const getAlimentosRef = await buscaInformacoes(ctx, endPointAlimentosRef)
+      
+      for(let i = 0; i < getAlimentosRef.body.length; i++){
+
+        auxilioKcal = auxilioKcal + getAlimentosRef.body[i].calorias_kcal
+        
+        if(i === getAlimentosRef.body.length-1){
+          dadosKcal[index] = auxilioKcal
+        }
+      }
+
+      dadosKcal.forEach(element => {
+        setAlimentoRefeicao({
+          
+        })
+      });
+    });
+
   }, [])
 
   const handleChangePage = (event, newPage) => {
@@ -312,9 +342,6 @@ const PlanoID = () => {
           router.reload()
         }, 2000)
 
-
-        console.log(res.body)
-
       } catch (err) {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
@@ -348,7 +375,7 @@ const PlanoID = () => {
 
   return (
     <>
-      <IconButton size='small' sx={{ marginBottom: 4 }} onClick={() => { router.back() }}>
+      <IconButton size='small' sx={{ marginBottom: 4 }} onClick={() => { router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/perfil`) }}>
         <ArrowLeftCircle sx={{ marginRight: 2, fontSize: '1.375rem', }} />
         Perfil
       </IconButton>
@@ -384,6 +411,20 @@ const PlanoID = () => {
               <Button onClick={() => { window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/anamnese`) }}>Editar</Button>
             </CardActions>
           </Card>
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={6} mt={5}>
+        <Grid item xs={12} sm={6} md={4}>
+          <CardInformacoesNutricionais />
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4}>
+          <CardInformacoesNutricionais />
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4}>
+          <CardInformacoesNutricionais />
         </Grid>
       </Grid>
 
@@ -442,6 +483,7 @@ const PlanoID = () => {
                       </Grid>
                       <Divider />
                       <ListaAlimentosCadastrados
+                        key={row?.id}
                         id={row?.id}
                       />
                       <Divider />

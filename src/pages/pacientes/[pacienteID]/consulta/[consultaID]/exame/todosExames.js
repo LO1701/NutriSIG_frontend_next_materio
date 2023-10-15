@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, forwardRef } from 'react'
+import { useState, forwardRef, useEffect } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -12,8 +12,8 @@ import MuiTab from '@mui/material/Tab'
 import CardHeader from '@mui/material/CardHeader'
 
 // ** Icons Imports
-import HumanMaleHeight from 'mdi-material-ui/HumanMaleHeight'
-import ListStatus from 'mdi-material-ui/ListStatus'
+import TextBoxPlusOutline from 'mdi-material-ui/TextBoxPlusOutline'
+import FileSign from 'mdi-material-ui/FileSign'
 import CardBulletedOutline from 'mdi-material-ui/CardBulletedOutline'
 import WeightKilogram from 'mdi-material-ui/WeightKilogram'
 import Home from 'mdi-material-ui/Home'
@@ -59,9 +59,9 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { useRouter } from 'next/router'
-import { IconButton } from '@mui/material'
-import { ArrowLeftCircle } from 'mdi-material-ui'
-
+import { IconButton, Stack } from '@mui/material'
+import { ArrowLeftCircle, ScaleBathroom } from 'mdi-material-ui'
+import ListaExamesCadastrados from '../../../../../../MyComponents/ListaExamesCadastrados'
 
 
 // ** Styles
@@ -88,7 +88,7 @@ const Alert = forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} sx={{ width: '100%', backgroundColor: '#10B981', color: '#FFF' }} />;
 });
 
-const Exame = () => {
+const TodosExames = () => {
 
     const auth = useAuth()
     const router = useRouter()
@@ -100,10 +100,19 @@ const Exame = () => {
     const [value, setValue] = useState('account')
     const [open, setOpen] = useState(false);
     const [resposta, setResposta] = useState();
+    const [exames, setExames] = useState([]);
 
     const handleChange = (event, newValue) => {
         setValue(newValue)
     }
+
+    useEffect(async (ctx) => {
+        // Busca todos os Exames laboratoriais
+        const endPointExames = `paciente/consulta/${consultaID}/exame`
+        const getExames = await api.getInformation(ctx, endPointExames)
+
+        setExames(getExames.body)
+    }, [])
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -150,7 +159,7 @@ const Exame = () => {
                 setOpen(true)
 
                 setTimeout(function () {
-                    router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/exame/todosExames`)
+                    router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/exame/${resposta.body.id}`)
                 }, 2000)
 
             } catch (err) {
@@ -167,83 +176,23 @@ const Exame = () => {
                 <ArrowLeftCircle sx={{ marginRight: 2, fontSize: '1.375rem', }} />
                 Perfil
             </IconButton>
-            <Card>
-                <CardHeader title='Informações sobre Exames Laboratoriais' titleTypographyProps={{ variant: 'h6' }} />
-                <CardContent>
-                    <form noValidate autoComplete='off' onSubmit={formik.handleSubmit}>
-                        <Grid container spacing={7}>
-                            <Grid item xs={12} sm={6} sx={{ marginTop: 4.8 }}>
-                                <TextField
-                                    error={!!(formik.touched.nome && formik.errors.nome)}
-                                    autoFocus
-                                    fullWidth
-                                    helperText={formik.touched.nome && formik.errors.nome}
-                                    id='nome'
-                                    label='Nome / Tipo'
-                                    placeholder='Nome'
-                                    name='nome'
-                                    type="string"
-                                    value={formik.values.nome}
-                                    onBlur={formik.handleBlur}
-                                    onChange={formik.handleChange}
-                                    sx={{ marginBottom: 4 }}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position='start'>
-                                                <HumanMaleHeight />
-                                            </InputAdornment>
-                                        )
-                                    }} />
-                            </Grid>
-
-                            <Grid item xs={12} sm={6} sx={{ marginTop: 4.8 }}>
-                                <TextField
-                                    error={!!(formik.touched.observacoes && formik.errors.observacoes)}
-                                    autoFocus
-                                    fullWidth
-                                    multiline
-                                    rows={3}
-                                    helperText={formik.touched.observacoes && formik.errors.observacoes}
-                                    id='observacoes'
-                                    label='Observações'
-                                    placeholder=''
-                                    name='observacoes'
-                                    type="string"
-                                    value={formik.values.observacoes}
-                                    onBlur={formik.handleBlur}
-                                    onChange={formik.handleChange}
-                                    sx={{ marginBottom: 4 }}
-                                />
-                            </Grid>
-
-                            {formik.errors.submit && (
-                                <Snackbar open={open} autoHideDuration={12000000} onClose={handleClose}>
-                                    <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
-                                        {formik.errors.submit}
-                                    </Alert>
-                                </Snackbar>
-                            )}
-
-                            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-                                <Alert onClose={handleClose} >
-                                    {resposta}
-                                </Alert>
-                            </Snackbar>
-
-                            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                <Button variant='contained' type='submit'>
-                                    Salvar
-                                </Button>
-                            </Grid>
-                        </Grid>
-                    </form>
-                </CardContent>
-            </Card>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5} sx={{ marginTop: '25px' }}>
+                <Typography variant="h5" gutterBottom>
+                    Informações sobre os Exames Laboratoriais
+                </Typography>
+                <Button variant="contained" onClick={() => { router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/exame`) }}>
+                    <TextBoxPlusOutline sx={{ marginRight: 1, fontSize: '1.375rem', marginBottom: 1 }} />
+                    Adicionar
+                </Button>
+            </Stack>
+            {exames?.map(row => (
+                <ListaExamesCadastrados key={row?.id} id={row?.id} nome={row?.nome} observacoes={row?.observacoes} />
+            ))}
         </>
     )
 }
 
-export default Exame
+export default TodosExames
 
 export const getServerSideProps = async (ctx) => {
     const token = tokenService.get(ctx);

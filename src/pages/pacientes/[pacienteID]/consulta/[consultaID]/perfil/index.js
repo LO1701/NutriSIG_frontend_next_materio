@@ -61,6 +61,7 @@ const Perfil = () => {
   const [page, setPage] = useState(0);
   const [medida, setMedida] = useState([])
   const [exame, setExame] = useState([])
+  const [primeirosExames, setPrimeirosExames] = useState([])
   const [anamnese, setAnamnese] = useState([])
   const [planoAlimentar, setPlanoAlimentar] = useState([])
 
@@ -74,13 +75,19 @@ const Perfil = () => {
   function formataData(data) {
     const date = new Date(data)
     let dia = null
+    let mes = null
 
     if (date.getDate() < 10)
-      dia = `0${date.getDate()}`
+      dia = `0${date.getDate()+1}`
     else
-      dia = date.getDate()
+      dia = date.getDate()+1
 
-    const dataDeCriacao = `${dia}/0${date.getMonth() + 1}/${date.getFullYear()}`
+    if ((date.getMonth()+1) < 10)
+      mes = `0${date.getMonth()+1}`
+    else
+      mes = date.getMonth()+1
+
+    const dataDeCriacao = `${dia}/${mes}/${date.getFullYear()}`
 
     return dataDeCriacao
   }
@@ -101,6 +108,14 @@ const Perfil = () => {
     const getExames = await buscaInformacoes(ctx, endPointExames)
     setExame(getExames.body)
 
+    if(getExames.body.length > 0){
+      const dataUltimoExame = formataData(getExames.body[getExames.body.length-1].createdAt)
+      getExames.body[getExames.body.length-1].data = dataUltimoExame
+      setPrimeirosExames(getExames.body[getExames.body.length-1])
+    }
+
+console.log(primeirosExames)
+
     // Busca todas anamneses
     const endPointAnamnese = `paciente/consulta/${consultaID}/anamnese`
     const getAnamnese = await buscaInformacoes(ctx, endPointAnamnese)
@@ -114,6 +129,14 @@ const Perfil = () => {
     // Busca todos planos alimentares
     const endPointPlanoAlimentar = `paciente/${pacienteID}/consulta/${consultaID}/plano`
     const getPlanosAlimentares = await buscaInformacoes(ctx, endPointPlanoAlimentar)
+    
+    getPlanosAlimentares.body.forEach((element, index) => {
+      const dateCriacao = formataData(element.createdAt)
+      const dateValidade = formataData(element.validade)
+      getPlanosAlimentares.body[index].dataDeCriacaoPlano = dateCriacao
+      getPlanosAlimentares.body[index].dataDeValidade = dateValidade
+    })
+    
     setPlanoAlimentar(getPlanosAlimentares.body)
 
   }, [])
@@ -186,18 +209,21 @@ const Perfil = () => {
 
         <Grid item xs={12} sm={6}>
           <Card>
-            <CardHeader title='Exames Laboratoriais' />
+            <CardHeader title='Informações sobre os Exames Laboratoriais' />
             <CardContent>
               {exame?.length > 0 ? (
                 <>
                   <Typography variant='body2' sx={{ marginBottom: 3.25 }}>
-                    Computers have become ubiquitous in almost every facet of our lives. At work, desk jockeys spend hours in
-                    front of their desktops, while delivery people scan bar codes with handhelds and workers in the field stay in
-                    touch.
+                    Abaixo segue as informações do último exame cadastrado:
+                  </Typography>
+                  <Typography variant='body2' mb={2}>
+                    - Nome/Tipo: {primeirosExames?.nome}
+                  </Typography>
+                  <Typography variant='body2' mb={2}>
+                    - Observações: {primeirosExames?.observacoes}
                   </Typography>
                   <Typography variant='body2'>
-                    If you’re in the market for new desktops, notebooks, or PDAs, there are a myriad of choices. Here’s a rundown
-                    of some of the best systems available.
+                    - Data de cadastro: {primeirosExames?.data}
                   </Typography>
                 </>
               ) : (
@@ -208,7 +234,11 @@ const Perfil = () => {
               )}
             </CardContent>
             <CardActions className='card- action-dense' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button>{exame?.length > 0 ? 'Editar' : 'Adicionar'}</Button>
+            {exame?.length > 0 ? (
+                <Button onClick={() => { router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/exame/todosExames`) }}>Visualizar todos os exames</Button>
+              ) : (
+                <Button onClick={() => { router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/exame`) }}>Adicionar</Button>
+              )}
             </CardActions>
           </Card>
         </Grid>
@@ -310,8 +340,9 @@ const Perfil = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Nome</TableCell>
-                      <TableCell>Data de validade</TableCell>
-                      <TableCell>Máximo kcal </TableCell>
+                      <TableCell sx={{textAlign:'center'}}>Data de Cadastro</TableCell>
+                      <TableCell sx={{textAlign:'center'}}>Data de validade</TableCell>
+                      <TableCell sx={{textAlign:'center'}}>Máximo kcal </TableCell>
                       <TableCell sx={{ width: 5 }}>Editar</TableCell>
                     </TableRow>
                   </TableHead>
@@ -328,10 +359,13 @@ const Perfil = () => {
                         <TableCell component='th' scope='row'>
                           {row.nome}
                         </TableCell>
-                        <TableCell component='th' scope='row'>
-                          {row.validade}
+                        <TableCell component='th' scope='row' sx={{textAlign:'center'}}>
+                          {row.dataDeCriacaoPlano}
                         </TableCell>
-                        <TableCell component='th' scope='row'>
+                        <TableCell component='th' scope='row' sx={{textAlign:'center'}}>
+                          {row.dataDeValidade}
+                        </TableCell>
+                        <TableCell component='th' scope='row' sx={{textAlign:'center'}}>
                           {row.teto_kcal}
                         </TableCell>
                         <TableCell align="center">

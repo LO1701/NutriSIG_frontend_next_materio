@@ -63,39 +63,52 @@ const AnamneseID = () => {
   const [valores, setValores] = useState({
     questaoUm: "1) Motivação para a consulta:",
     respostaUm: "",
+    idUm: "",
     questaoDois: "2) Histórico Alimentar:",
     respostaDois: "",
+    idDois: "",
     questaoTres: "3) Tem alergia ou intolerância a algum tipo de alimento?",
     respostaTres: "",
     observacoesTres: "",
+    idTres: "",
     questaoQuatro: "4) Costuma ingerir líquidos durante as refeições?",
     respostaQuatro: "",
     observacoesQuatro: "",
+    idQuatro: "",
     questaoCinco: "5) Quem prepara suas refeições?",
     respostaCinco: "",
+    idCinco: "",
     questaoSeis: "6) Tipo de gordura utilizada no preparo de suas refeições:",
     respostaSeis: "",
+    idSeis: "",
     questaoSete: "7) Ingere bebida alcoólica?",
     respostaSete: "",
     observacoesSete: "",
+    idSete: "",
     questaoOito: "8) É fumante?",
     respostaOito: "",
     observacoesOito: "",
+    idOito: "",
     questaoNove: "9) Tem constipação intestinal?",
     respostaNove: "",
     observacoesNove: "",
+    idNove: "",
     questaoDez: "10) Histórico de doença na família?",
     respostaDez: "",
     observacoesDez: "",
+    idDez: "",
     questaoOnze: "11) Atualmente faz algum tipo de tratamento de saúde?",
     respostaOnze: "",
     observacoesOnze: "",
+    idOnze: "",
     questaoDoze: "12) Possui Patologia(as)?",
     respostaDoze: "",
     observacoesDoze: "",
+    idDoze: "",
     questaoTreze: "13) Utiliza Medicamento(s)?",
     respostaTreze: "",
     observacoesTreze: "",
+    idTreze: ""
   })
 
   useEffect(async (ctx) => {
@@ -106,28 +119,42 @@ const AnamneseID = () => {
     setValores({ 
       ...valores, 
       respostaUm: resposta.body[0].resposta,
+      idUm: resposta.body[0].id,
       respostaDois: resposta.body[1].resposta,  
+      idDois: resposta.body[1].id,  
       respostaTres: resposta.body[2].resposta,  
       observacoesTres: resposta.body[2].observacoes,  
+      idTres: resposta.body[2].id,  
       respostaQuatro: resposta.body[3].resposta, 
       observacoesQuatro: resposta.body[3].observacoes,  
+      idQuatro: resposta.body[3].id,  
       respostaCinco: resposta.body[4].resposta, 
+      idCinco: resposta.body[4].id, 
       respostaSeis: resposta.body[5].resposta, 
+      idSeis: resposta.body[5].id, 
       respostaSete: resposta.body[6].resposta, 
       observacoesSete: resposta.body[6].observacoes,
+      idSete: resposta.body[6].id,
       respostaOito: resposta.body[7].resposta, 
       observacoesOito: resposta.body[7].observacoes,
+      idOito: resposta.body[7].id,
       respostaNove: resposta.body[8].resposta, 
       observacoesNove: resposta.body[8].observacoes,
+      idNove: resposta.body[8].id,
       respostaDez: resposta.body[9].resposta, 
       observacoesDez: resposta.body[9].observacoes,
+      idDez: resposta.body[9].id,
       respostaOnze: resposta.body[10].resposta, 
       observacoesOnze: resposta.body[10].observacoes,
+      idOnze: resposta.body[10].id,
       respostaDoze: resposta.body[11].resposta, 
       observacoesDoze: resposta.body[11].observacoes,
+      idDoze: resposta.body[11].id,
       respostaTreze: resposta.body[12].resposta, 
       observacoesTreze: resposta.body[12].observacoes,
+      idTreze: resposta.body[12].id,
     })
+
   }, [])
 
   // ** Functions
@@ -154,66 +181,81 @@ const AnamneseID = () => {
     const arrayValores = [
       {
         "questao": valores.questaoUm,
-        "resposta": valores.respostaUm
+        "resposta": valores.respostaUm,
+        "id": valores.idUm
       },
       {
         "questao": valores.questaoDois,
-        "respostaDois": valores.respostaDois
+        "resposta": valores.respostaDois,
+        "id": valores.idDois
       },
       {
         "questao": valores.questaoTres,
         "resposta": valores.respostaTres,
-        "observacoes": valores.observacoesTres
+        "observacoes": valores.observacoesTres,
+        "id": valores.idTres
       },
       {
         "questao": valores.questaoQuatro,
         "resposta": valores.respostaQuatro,
-        "observacoes": valores.observacoesQuatro
+        "observacoes": valores.observacoesQuatro,
+        "id": valores.idQuatro
       },
       {
         "questao": valores.questaoCinco,
-        "resposta": valores.respostaCinco
+        "resposta": valores.respostaCinco,
+        "id": valores.idCinco
       },
       {
         "questao": valores.questaoSeis,
-        "resposta": valores.respostaSeis
+        "resposta": valores.respostaSeis,
+        "id": valores.idSeis
       },
       {
         "questao": valores.questaoSete,
         "resposta": valores.respostaSete,
-        "observacoes": valores.observacoesSete
+        "observacoes": valores.observacoesSete,
+        "id": valores.idSete
       },
       {
         "questao": valores.questaoOito,
         "resposta": valores.respostaOito,
-        "observacoes": valores.observacoesOito
+        "observacoes": valores.observacoesOito,
+        "id": valores.idOito
       },
       {
         "questao": valores.questaoNove,
         "resposta": valores.respostaNove,
-        "observacoes": valores.observacoesNove
+        "observacoes": valores.observacoesNove,
+        "id": valores.idNove
       },
       {
         "questao": valores.questaoDez,
         "resposta": valores.respostaDez,
-        "observacoes": valores.observacoesDez
+        "observacoes": valores.observacoesDez,
+        "id": valores.idDez
       },
       {
         "questao": valores.questaoOnze,
         "resposta": valores.respostaOnze,
-        "observacoes": valores.observacoesOnze
+        "observacoes": valores.observacoesOnze,
+        "id": valores.idOnze
       },
       {
         "questao": valores.questaoDoze,
         "resposta": valores.respostaDoze,
-        "observacoes": valores.observacoesDez
+        "observacoes": valores.observacoesDoze,
+        "id": valores.idDoze
       },
       {
         "questao": valores.questaoTreze,
         "resposta": valores.respostaTreze,
-        "observacoes": valores.observacoesTreze
+        "observacoes": valores.observacoesTreze,
+        "id": valores.idTreze
       }
     ]
+
+    console.log(arrayValores)
 
     const res = await atualizaAnamnese(arrayValores)
 

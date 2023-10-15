@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, forwardRef } from 'react'
+import { useState, forwardRef, useEffect } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -88,18 +88,20 @@ const Alert = forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} sx={{ width: '100%', backgroundColor: '#10B981', color: '#FFF' }} />;
 });
 
-const Exame = () => {
+const ExameID = () => {
 
     const auth = useAuth()
     const router = useRouter()
 
     const consultaID = router.query.consultaID
     const pacienteID = router.query.pacienteID
+    const exameID = router.query.exameID
 
     // ** State
     const [value, setValue] = useState('account')
     const [open, setOpen] = useState(false);
     const [resposta, setResposta] = useState();
+    const [exame, setExame] = useState([])
 
     const handleChange = (event, newValue) => {
         setValue(newValue)
@@ -113,19 +115,27 @@ const Exame = () => {
         setOpen(false);
     };
 
-    const criaExame = async (values) => {
-        const endPoint = `paciente/consulta/${consultaID}/exame`
+    const atualizaExame = async (values) => {
+        const endPoint = `paciente/consulta/${consultaID}/exame/${exameID}`
 
-        const resposta = await api.postInformation(endPoint, values)
+        const resposta = await api.putInformation(endPoint, values)
 
         return resposta
     }
 
+    useEffect(async (ctx) => {
+        // Busca todos os Exames laboratoriais
+        const endPointExames = `paciente/consulta/${consultaID}/exame/${exameID}`
+        const getExames = await api.getInformation(ctx, endPointExames)
+        
+        setExame(getExames.body)
+    }, [])
+
     // Formik
     const formik = useFormik({
         initialValues: {
-            nome: '',
-            observacoes: '',
+            nome: exame.nome,
+            observacoes: exame.observacoes,
             submit: null
         },
         enableReinitialize: true,
@@ -139,18 +149,20 @@ const Exame = () => {
         }),
         onSubmit: async (values, helpers) => {
             try {
-                const resposta = await criaExame(values)
+                const resposta = await atualizaExame(values)
 
                 if (resposta.ok === true) {
-                    setResposta('Exame adicionado com sucesso')
+                    setResposta('Exame atualizado com sucesso')
                 } else {
                     setResposta('Erro ao criar a consulta')
                 }
 
+                console.log(resposta)
+
                 setOpen(true)
 
                 setTimeout(function () {
-                    router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${consultaID}/exame/todosExames`)
+                    router.reload()
                 }, 2000)
 
             } catch (err) {
@@ -243,7 +255,7 @@ const Exame = () => {
     )
 }
 
-export default Exame
+export default ExameID
 
 export const getServerSideProps = async (ctx) => {
     const token = tokenService.get(ctx);
