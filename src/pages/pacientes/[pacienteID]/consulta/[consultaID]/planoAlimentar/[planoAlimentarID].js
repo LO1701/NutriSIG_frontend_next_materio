@@ -100,6 +100,7 @@ const PlanoID = () => {
 
   // States dos alimentos cadastrados nas refeicoes
   const [alimentoRefeicao, setAlimentoRefeicao] = useState([])
+  const [testaCard, setTestaCard] = useState([])
 
   // Notificação
   const Alert = forwardRef(function Alert(props, ref) {
@@ -138,14 +139,14 @@ const PlanoID = () => {
     let mes = null
 
     if (date.getDate() < 10)
-      dia = `0${date.getDate()+1}`
+      dia = `0${date.getDate() + 1}`
     else
-      dia = date.getDate()+1
+      dia = date.getDate() + 1
 
-    if ((date.getMonth()+1) < 10)
-      mes = `0${date.getMonth()+1}`
+    if ((date.getMonth() + 1) < 10)
+      mes = `0${date.getMonth() + 1}`
     else
-      mes = date.getMonth()+1
+      mes = date.getMonth() + 1
 
     const dataDeCriacao = `${dia}/${mes}/${date.getFullYear()}`
 
@@ -174,28 +175,58 @@ const PlanoID = () => {
     setAlimento(getAlimentos.body)
 
     // Busca todos os alimentos das refeicoes
-    
-    getRefeicoes.body.forEach( async (element, index) => {
-      const endPointAlimentosRef = `plano/${planoAlimentarID}/refeicao/${element.id}/alimento/refeicaoAlimento`
+
+    if (getRefeicoes.body.length > 0) {
       const dadosKcal = []
-      let auxilioKcal = 0
-      const getAlimentosRef = await buscaInformacoes(ctx, endPointAlimentosRef)
-      
-      for(let i = 0; i < getAlimentosRef.body.length; i++){
+      const dadosCarbo = []
+      const dadosProteinas = []
 
-        auxilioKcal = auxilioKcal + getAlimentosRef.body[i].calorias_kcal
-        
-        if(i === getAlimentosRef.body.length-1){
-          dadosKcal[index] = auxilioKcal
+      getRefeicoes.body.forEach(async (element, index) => {
+        const endPointAlimentosRef = `plano/${planoAlimentarID}/refeicao/${element.id}/alimento/refeicaoAlimento`
+        const getAlimentosRef = await buscaInformacoes(ctx, endPointAlimentosRef)
+console.log(getAlimentosRef.body)
+        setTestaCard(getAlimentosRef.body.length)
+        let auxilioKcal = 0
+        let auxilioCarbo = 0
+        let auxilioProteinas = 0
+
+        for (let i = 0; i < getAlimentosRef.body.length; i++) {
+
+          auxilioKcal = auxilioKcal + getAlimentosRef.body[i].calorias_kcal
+          auxilioCarbo = auxilioCarbo + getAlimentosRef.body[i].carboidratos
+          auxilioProteinas += getAlimentosRef.body[i].proteinas
+
+          if (i === getAlimentosRef.body.length - 1) {
+            dadosKcal[index] = auxilioKcal
+            dadosCarbo[index] = auxilioCarbo
+            dadosProteinas[index] = auxilioProteinas
+          }
         }
-      }
 
-      dadosKcal.forEach(element => {
+        let somaKcal = 0
+        let somaCarbo = 0
+        let somaProteinas = 0
+
+        dadosKcal.forEach(element => {
+          somaKcal += element
+        });
+
+        dadosCarbo.forEach(element => {
+          somaCarbo += element
+        });
+
+        dadosProteinas.forEach(element => {
+          somaProteinas += element
+        });
+
         setAlimentoRefeicao({
-          
+          kcal: somaKcal,
+          carbo: somaCarbo,
+          proteinas: somaProteinas,
         })
+
       });
-    });
+    }
 
   }, [])
 
@@ -414,19 +445,21 @@ const PlanoID = () => {
         </Grid>
       </Grid>
 
-      <Grid container spacing={6} mt={5}>
-        <Grid item xs={12} sm={6} md={4}>
-          <CardInformacoesNutricionais />
-        </Grid>
+      {testaCard > 0 &&
+        <Grid container spacing={6} mt={5}>
+          <Grid item xs={12} sm={6} md={4}>
+            <CardInformacoesNutricionais titulo='Total de Kcal' valorTotalNutriente={alimentoRefeicao?.kcal?.toFixed(2)} cor={'#10b981'} />
+          </Grid>
 
-        <Grid item xs={12} sm={6} md={4}>
-          <CardInformacoesNutricionais />
-        </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <CardInformacoesNutricionais titulo='Total de Carboidratos' valorTotalNutriente={alimentoRefeicao?.carbo?.toFixed(2)} cor={'#16b1ff'}/>
+          </Grid>
 
-        <Grid item xs={12} sm={6} md={4}>
-          <CardInformacoesNutricionais />
+          <Grid item xs={12} sm={6} md={4}>
+            <CardInformacoesNutricionais titulo='Total de Proteínas' valorTotalNutriente={alimentoRefeicao?.proteinas?.toFixed(2)} cor={'#56ca00'}/>
+          </Grid>
         </Grid>
-      </Grid>
+      }
 
       <>
         <Container sx={{ mt: 12 }}>
@@ -645,7 +678,7 @@ const PlanoID = () => {
                     }}
                     id="alimento"
                     disableClearable
-                    noOptionsText={"Nenhuma alimento encontrado"}
+                    noOptionsText={"Nenhum alimento encontrado"}
                     isOptionEqualToValue={(alimento, value) => alimento.nome === value.nome}
                     options={alimento}
                     getOptionLabel={(alimento) => alimento.nome}

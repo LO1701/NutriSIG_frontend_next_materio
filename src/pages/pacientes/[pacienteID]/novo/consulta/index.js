@@ -99,7 +99,7 @@ const NovaConsulta = () => {
         setOpen(true)
 
         setTimeout(function () {
-          window.location.replace(`http://localhost:3000/pacientes/${pacienteID}/consulta/${res.body.id}/perfil`)
+          router.push(`http://localhost:3000/pacientes/${pacienteID}/consulta/${res.body.id}/perfil`)
         }, 2000)
 
       } catch (err) {

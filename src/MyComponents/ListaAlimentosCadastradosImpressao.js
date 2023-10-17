@@ -73,8 +73,6 @@ const ListaAlimentosCadastradosImpressao = ({id}) => {
     const endPointAlimentosCadastrado = `plano/${planoAlimentarID}/refeicao/${id}/alimento/refeicaoAlimento`
     const getAlimentosCadastrado = await buscaInformacoes(ctx, endPointAlimentosCadastrado)
     setAlimentoCadastrado(getAlimentosCadastrado.body)
-
-    console.log(alimentoCadastrado)
   }, [])
 
 
