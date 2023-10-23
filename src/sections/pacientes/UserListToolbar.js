@@ -38,7 +38,7 @@ UserListToolbar.propTypes = {
   onFilterName: PropTypes.func,
 };
 
-export default function UserListToolbar({ filterName, onFilterName }) {
+export default function UserListToolbar({ filterName, onFilterName, placeHolder = 'Pesquisar paciente...' }) {
   return (
     <StyledRoot
       sx={{
@@ -49,7 +49,7 @@ export default function UserListToolbar({ filterName, onFilterName }) {
       <StyledSearch
         value={filterName}
         onChange={onFilterName}
-        placeholder="Pesquisar paciente..."
+        placeholder={placeHolder}
         startAdornment={
           <InputAdornment position="start">
             <Magnify />

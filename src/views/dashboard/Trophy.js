@@ -15,32 +15,29 @@ const TriangleImg = styled('img')({
 
 // Styled component for the trophy image
 const TrophyImg = styled('img')({
-  right: 36,
-  bottom: 20,
-  height: 98,
+  right: 15,
+  bottom: 5,
+  height: 90,
   position: 'absolute'
 })
 
-const Trophy = () => {
+const Trophy = ({nome, data, email}) => {
   // ** Hook
   const theme = useTheme()
   const imageSrc = theme.palette.mode === 'light' ? 'triangle-light.png' : 'triangle-dark.png'
 
   return (
-    <Card sx={{ position: 'relative' }}>
+    <Card sx={{ position: 'relative'}}>
       <CardContent>
-        <Typography variant='h6'>Congratulations John! 🥳</Typography>
+        <Typography variant='h6'>Olá, seja bem vinda {nome} 😊</Typography>
         <Typography variant='body2' sx={{ letterSpacing: '0.25px' }}>
-          Best seller of the month
+          {data}
         </Typography>
-        <Typography variant='h5' sx={{ my: 4, color: 'primary.main' }}>
-          $42.8k
+        <Typography variant='body2' sx={{ my: 4, color: 'primary.main' }}>
+          {email}
         </Typography>
-        <Button size='small' variant='contained'>
-          View Sales
-        </Button>
         <TriangleImg alt='triangle background' src={`/images/misc/${imageSrc}`} />
-        <TrophyImg alt='trophy' src='/images/misc/trophy.png' />
+        <TrophyImg alt='trophy' src='/images/misc/dashboard.png' />
       </CardContent>
     </Card>
   )
