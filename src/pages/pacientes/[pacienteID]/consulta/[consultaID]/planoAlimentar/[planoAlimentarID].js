@@ -51,7 +51,7 @@ import { authService } from '../../../../../../services/auth/authService';
 // ** Foormik and yup Imports
 import { useFormik } from 'formik'
 import * as Yup from 'yup';
-import { ArrowLeftCircle, Box, FormTextbox, React } from 'mdi-material-ui';
+import { ArrowLeftCircle, Box, FormTextbox, PencilBoxMultiple, React } from 'mdi-material-ui';
 
 import ListaAlimentosCadastrados from '../../../../../../MyComponents/ListaAlimentosCadastrados'
 
@@ -184,7 +184,7 @@ const PlanoID = () => {
       getRefeicoes.body.forEach(async (element, index) => {
         const endPointAlimentosRef = `plano/${planoAlimentarID}/refeicao/${element.id}/alimento/refeicaoAlimento`
         const getAlimentosRef = await buscaInformacoes(ctx, endPointAlimentosRef)
-console.log(getAlimentosRef.body)
+        console.log(getAlimentosRef.body)
         setTestaCard(getAlimentosRef.body.length)
         let auxilioKcal = 0
         let auxilioCarbo = 0
@@ -452,11 +452,11 @@ console.log(getAlimentosRef.body)
           </Grid>
 
           <Grid item xs={12} sm={6} md={4}>
-            <CardInformacoesNutricionais titulo='Total de Carboidratos' valorTotalNutriente={alimentoRefeicao?.carbo?.toFixed(2)} cor={'#16b1ff'}/>
+            <CardInformacoesNutricionais titulo='Total de Carboidratos' valorTotalNutriente={alimentoRefeicao?.carbo?.toFixed(2)} cor={'#16b1ff'} />
           </Grid>
 
           <Grid item xs={12} sm={6} md={4}>
-            <CardInformacoesNutricionais titulo='Total de Proteínas' valorTotalNutriente={alimentoRefeicao?.proteinas?.toFixed(2)} cor={'#56ca00'}/>
+            <CardInformacoesNutricionais titulo='Total de Proteínas' valorTotalNutriente={alimentoRefeicao?.proteinas?.toFixed(2)} cor={'#56ca00'} />
           </Grid>
         </Grid>
       }
@@ -663,7 +663,6 @@ console.log(getAlimentosRef.body)
       </div>
 
       {/* Modal dos alimentos */}
-
       <div>
         <Dialog open={openAlimento} onClose={handleCloseAlimento}>
           <DialogTitle>Alimento</DialogTitle>

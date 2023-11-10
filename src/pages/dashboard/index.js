@@ -116,12 +116,12 @@ const Dashboard = (props) => {
         <Grid item xs={12} md={6}>
           <StatisticsCard numeroPacientes={quantidadePacientes} numeroConsultas={quantidadeConsultas} numeroAlimentos={quantidadeAlimentos}/>
         </Grid>
-        <Grid item xs={12} md={12} lg={7}>
+        <Grid item xs={12} md={12} lg={12}>
           <TotalEarning pacientesDoMesAtual={pacientesMesAtual}/>
         </Grid>
-        <Grid item xs={12} md={12} lg={5}>
+        {/* <Grid item xs={12} md={12} lg={5}>
           <WeeklyOverview />
-        </Grid>
+        </Grid> */}
       </Grid>
     </ApexChartWrapper>
   )

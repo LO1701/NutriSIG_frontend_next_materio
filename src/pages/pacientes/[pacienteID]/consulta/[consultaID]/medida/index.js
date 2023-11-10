@@ -138,12 +138,12 @@ const Medida = () => {
             peso_atual: Yup
                 .number()
                 .required('Peso é obrigatório'),
-            estado_nutricional: Yup
-                .string()
-                .required('Estado nutricional é obrigatório'),
-            diagnostico_nutricional: Yup
-                .string()
-                .required('Diagnóstico nutricional é obrigatório'),
+            // estado_nutricional: Yup
+            //     .string()
+            //     .required('Estado nutricional é obrigatório'),
+            // diagnostico_nutricional: Yup
+            //     .string()
+            //     .required('Diagnóstico nutricional é obrigatório'),
         }),
         onSubmit: async (values, helpers) => {
             try {
@@ -228,7 +228,7 @@ const Medida = () => {
                                     }} />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            {/* <Grid item xs={12} sm={6}>
                                 <TextField
                                     error={!!(formik.touched.estado_nutricional && formik.errors.estado_nutricional)}
                                     autoFocus
@@ -274,7 +274,7 @@ const Medida = () => {
                                             </InputAdornment>
                                         )
                                     }} />
-                            </Grid>
+                            </Grid> */}
 
                             <Grid item xs={12} sm={6}>
                                 <TextField
