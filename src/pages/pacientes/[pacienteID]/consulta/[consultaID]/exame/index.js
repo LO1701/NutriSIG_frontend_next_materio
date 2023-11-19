@@ -187,13 +187,14 @@ const Exame = () => {
                                     onBlur={formik.handleBlur}
                                     onChange={formik.handleChange}
                                     sx={{ marginBottom: 4 }}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position='start'>
-                                                <HumanMaleHeight />
-                                            </InputAdornment>
-                                        )
-                                    }} />
+                                    // InputProps={{
+                                    //     startAdornment: (
+                                    //         <InputAdornment position='start'>
+                                    //             <HumanMaleHeight />
+                                    //         </InputAdornment>
+                                    //     )
+                                    // }} 
+                                    />
                             </Grid>
 
                             <Grid item xs={12} sm={6} sx={{ marginTop: 4.8 }}>

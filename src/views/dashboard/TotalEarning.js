@@ -98,7 +98,7 @@ const TotalEarning = ({ pacientesDoMesAtual }) => {
         ) : (
           <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', justifyContent: 'center', margin: 10 }}>
             <CloseBoxMultiple sx={{ marginRight: 2, fontSize: '1.375rem', }} />
-            Nenhuma paciente atendido no mês atual
+            Nenhum paciente atendido no mês atual
           </Typography>
         )}
       </CardContent>

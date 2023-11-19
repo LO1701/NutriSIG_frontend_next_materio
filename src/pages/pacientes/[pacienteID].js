@@ -63,15 +63,20 @@ function defineIcone(paciente) {
 
 function formataData(data) {
     const date = new Date(data)
-    let diaFormatado = null
-    let diaSemFormatacao = date.getDate() + 1 //tá somando um por que quando converte para número sempre vem 1 a menos
+    let dia = null
+    let mes = null
 
     if (date.getDate() < 10)
-        diaFormatado = `0${diaSemFormatacao}`
+      dia = `0${date.getDate()}` + 1
     else
-        diaFormatado = diaSemFormatacao
+      dia = date.getDate()
 
-    const dataDeCriacao = `${diaFormatado}/0${date.getMonth() + 1}/${date.getFullYear()}`
+    if ((date.getMonth() + 1) < 10)
+      mes = `0${date.getMonth() + 1}`
+    else
+      mes = date.getMonth() + 1
+
+    const dataDeCriacao = `${dia}/${mes}/${date.getFullYear()}`
 
     return dataDeCriacao
 }
